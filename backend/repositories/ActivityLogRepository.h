@@ -1,0 +1,1 @@
+// ActivityLogRepository declaration placeholder.

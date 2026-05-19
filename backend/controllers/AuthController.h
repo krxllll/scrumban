@@ -1,0 +1,1 @@
+// AuthController declaration placeholder.

@@ -1,0 +1,1 @@
+// ActivityLog model placeholder.

@@ -1,0 +1,1 @@
+-- Scrumban database schema placeholder.
