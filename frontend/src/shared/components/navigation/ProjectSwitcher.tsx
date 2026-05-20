@@ -1,3 +1,30 @@
-export function ProjectSwitcher() {
-  return <div>Project switcher placeholder</div>;
+import { cn } from "../../utils/cn";
+
+type ProjectSwitcherProps = {
+  projects: string[];
+  activeProject: string;
+};
+
+export function ProjectSwitcher({ projects, activeProject }: ProjectSwitcherProps) {
+  return (
+    <div className="flex flex-col gap-2">
+      {projects.map((project) => {
+        const active = project === activeProject;
+
+        return (
+          <button
+            className={cn(
+              "flex h-10 items-center gap-2.5 rounded-xl px-3 text-left text-[13px] text-text-secondary transition-colors",
+              active && "border border-white/10 bg-white/[0.08] font-semibold text-text-primary",
+            )}
+            key={project}
+            type="button"
+          >
+            <span className={cn("h-2 w-2 rounded-full bg-slate-500", active && "bg-accent")} />
+            <span className="truncate">{project}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
 }
