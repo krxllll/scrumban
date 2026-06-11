@@ -47,7 +47,7 @@ export function Sidebar() {
 
       <section className="mt-7">
         <div className="mb-2.5 flex items-center justify-between">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-muted">Projects</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">Projects</p>
           <button className="text-text-secondary transition-colors hover:text-text-primary" type="button" aria-label="Add project">
             <Plus size={14} />
           </button>

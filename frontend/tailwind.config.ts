@@ -13,7 +13,7 @@ export default {
         "glass-border": "rgba(255,255,255,0.12)",
         "text-primary": "#E2E8F0",
         "text-secondary": "#94A3B8",
-        "text-muted": "#64748B",
+        muted: "#64748B",
         success: "#22C55E",
         info: "#38BDF8",
         warning: "#F59E0B",

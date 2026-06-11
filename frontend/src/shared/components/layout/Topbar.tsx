@@ -15,7 +15,7 @@ export function Topbar() {
       </div>
 
       <label className="relative hidden w-[190px] xl:block">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
         <Input className="h-[38px] pl-9 text-[13px]" placeholder="Search tasks..." />
       </label>
 
