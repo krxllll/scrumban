@@ -19,23 +19,20 @@ const accentClasses = {
 
 export function BoardColumn({ column }: BoardColumnProps) {
   return (
-    <section className="flex w-[206px] shrink-0 flex-col overflow-hidden rounded-[20px] border border-glass-border bg-white/[0.05]">
+    <section className="glass-panel flex flex-1 flex-col min-w-[200px] overflow-hidden rounded-[20px]">
       <div className={cn("h-1 w-full shrink-0", accentClasses[column.accent])} />
-      <div className="flex items-center gap-2 px-3 pb-3 pt-4">
-        <h2 className="w-[96px] text-sm font-semibold leading-5 text-text-primary">{column.title}</h2>
-        <Badge className="px-2.5" tone="muted">
-          {column.tasks.length}
-        </Badge>
+      <div className="flex items-center justify-between gap-2 px-3.5 pb-3 pt-4">
+        <h2 className="text-base font-semibold text-text-primary">{column.title}</h2>
         <WipIndicator count={column.tasks.length} limit={column.wipLimit} />
       </div>
 
-      <div className="flex flex-col gap-2.5 px-2.5">
+      <div className="flex flex-col gap-2 px-3">
         {column.tasks.map((task) => (
           <TaskCard key={task.id} task={task} />
         ))}
       </div>
 
-      <div className="mt-auto p-2.5">
+      <div className="mt-auto p-3">
         <AddTaskButton />
       </div>
     </section>

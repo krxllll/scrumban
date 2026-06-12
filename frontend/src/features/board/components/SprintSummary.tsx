@@ -10,7 +10,7 @@ const stats = [
 
 export function SprintSummary() {
   return (
-    <section className="glass-panel flex flex-wrap items-center gap-6 rounded-3xl p-4">
+    <section className="glass-panel flex flex-wrap items-center gap-6 rounded-[20px] p-4">
       <div className="min-w-[320px] flex-1">
         <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted">Sprint goal</p>
         <p className="mt-2 max-w-[560px] text-sm font-medium leading-5 text-text-primary">{sprintSummary.goal}</p>

@@ -35,9 +35,7 @@ export function BoardPage() {
 
         <SprintSummary />
 
-        <section className="glass-panel min-h-[calc(100vh-322px)] overflow-hidden rounded-[24px] p-3.5">
-          <BoardContainer />
-        </section>
+        <BoardContainer />
       </div>
     </AppShell>
   );
