@@ -14,8 +14,8 @@ export function ProjectSwitcher({ projects, activeProject }: ProjectSwitcherProp
         return (
           <button
             className={cn(
-              "flex h-10 items-center gap-2.5 rounded-xl px-3 text-left text-[13px] text-text-secondary transition-colors",
-              active && "border border-white/10 bg-white/[0.08] font-semibold text-text-primary",
+              "flex h-10 items-center gap-2.5 rounded-xl px-3 text-left text-sm text-text-secondary transition-colors",
+              active && "glass-panel font-semibold text-text-primary",
             )}
             key={project}
             type="button"

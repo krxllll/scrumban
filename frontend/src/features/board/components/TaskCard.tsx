@@ -29,12 +29,12 @@ export function TaskCard({ task }: TaskCardProps) {
   return (
     <article
       className={cn(
-        "rounded-2xl border border-glass-border bg-white/[0.07] p-3.5 shadow-card",
+        "rounded-2xl glass-panel p-3.5",
         blocked && "border-error/40 bg-error/[0.08]",
       )}
     >
       <div className="flex items-start gap-2">
-        <h3 className="min-h-8 flex-1 text-[13px] font-semibold leading-4 text-text-primary">{task.title}</h3>
+        <h3 className="flex-1 text-sm font-semibold text-text-primary">{task.title}</h3>
         <Avatar className="h-6 w-6 text-[10px]" name={task.assignee} tone={task.assigneeTone} />
       </div>
 
@@ -43,14 +43,7 @@ export function TaskCard({ task }: TaskCardProps) {
         <Badge tone={priorityTones[task.priority]}>{task.priority}</Badge>
       </div>
 
-      {task.blockedReason ? (
-        <p className="mt-3 flex items-center gap-1.5 truncate text-[11px] font-medium text-error">
-          <ShieldAlert size={12} />
-          {task.blockedReason}
-        </p>
-      ) : null}
-
-      <div className="mt-3 flex items-center gap-3 text-[11px] text-text-secondary">
+      <div className="mt-3 flex items-center justify-around text-xs text-text-secondary">
         <span className="inline-flex items-center gap-1">
           <CalendarDays size={12} />
           {task.dueDate}

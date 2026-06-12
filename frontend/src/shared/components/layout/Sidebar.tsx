@@ -1,14 +1,7 @@
-import { BarChart3, CalendarDays, KanbanSquare, ListChecks, Plus, Settings } from "lucide-react";
+import { BarChart3, Plus, LogOut } from "lucide-react";
 import { Avatar } from "../ui/Avatar";
 import { ProjectSwitcher } from "../navigation/ProjectSwitcher";
-import { cn } from "../../utils/cn";
-
-const navItems = [
-  { label: "Board", icon: KanbanSquare, active: true },
-  { label: "Backlog", icon: ListChecks },
-  { label: "Sprints", icon: CalendarDays },
-  { label: "Settings", icon: Settings },
-];
+import { Button } from "../ui/Button.tsx";
 
 const projects = ["Mobile App Redesign", "Website Update", "Research Tracker"];
 
@@ -25,29 +18,9 @@ export function Sidebar() {
         </div>
       </div>
 
-      <nav className="mt-7 flex flex-col gap-2">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-
-          return (
-            <button
-              className={cn(
-                "flex h-11 items-center gap-3 rounded-[14px] px-3.5 text-sm font-medium text-text-secondary transition-colors",
-                item.active && "border border-accent/20 bg-white/12 text-text-primary",
-              )}
-              key={item.label}
-              type="button"
-            >
-              <Icon className={cn("h-4 w-4", item.active && "text-accent")} />
-              {item.label}
-            </button>
-          );
-        })}
-      </nav>
-
       <section className="mt-7">
-        <div className="mb-2.5 flex items-center justify-between">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-muted">Projects</p>
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-muted">Projects</p>
           <button className="text-text-secondary transition-colors hover:text-text-primary" type="button" aria-label="Add project">
             <Plus size={14} />
           </button>
@@ -55,12 +28,17 @@ export function Sidebar() {
         <ProjectSwitcher projects={projects} activeProject="Mobile App Redesign" />
       </section>
 
-      <div className="mt-auto flex items-center gap-3 border border-white/[0.08] bg-white/[0.03] px-2 py-1.5">
-        <Avatar className="h-8 w-8" name="Roman Kroliak" />
-        <div className="min-w-0">
-          <p className="truncate text-xs font-semibold text-text-primary">Roman Kroliak</p>
-          <p className="truncate text-xs text-text-secondary">Project owner</p>
+      <div className="mt-auto flex items-center justify-between p-2 pt-4 border-t border-glass-border">
+        <div className="flex items-center gap-3">
+          <Avatar className="h-8 w-8" name="Roman Kroliak" />
+          <div className="min-w-0">
+            <p className="truncate text-xs font-semibold text-text-primary">Roman Kroliak</p>
+            <p className="truncate text-xs text-text-secondary">Project owner</p>
+          </div>
         </div>
+        <Button className="h-[32px]" variant="ghost">
+          <LogOut size={16} />
+        </Button>
       </div>
     </aside>
   );
