@@ -8,6 +8,7 @@ add_executable(scrumban
     backend/main.cc
     backend/repositories/UserRepository.cc
     backend/services/AuthService.cc
+    backend/utils/JwtUtils.cc
     backend/utils/PasswordHasher.cc
 )
 
