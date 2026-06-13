@@ -10,6 +10,7 @@ add_executable(scrumban
     backend/repositories/ProjectRepository.cc
     backend/repositories/UserRepository.cc
     backend/services/AuthService.cc
+    backend/services/ProjectService.cc
     backend/utils/JwtUtils.cc
     backend/utils/PasswordHasher.cc
 )
