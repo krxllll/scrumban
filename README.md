@@ -8,8 +8,8 @@ Run Conan install from the project root:
 
 ```powershell
 conan profile detect --force
-conan install . --output-folder=build --build=missing -s build_type=Debug -c tools.cmake.cmaketoolchain:generator=Ninja
-conan install . --output-folder=build --build=missing -s build_type=Release -c tools.cmake.cmaketoolchain:generator=Ninja
+conan install . --build=missing -s build_type=Debug -s compiler.cppstd=17 -c tools.cmake.cmaketoolchain:generator=Ninja -c tools.cmake.cmaketoolchain:user_presets=""
+conan install . --build=missing -s build_type=Release -s compiler.cppstd=17 -c tools.cmake.cmaketoolchain:generator=Ninja -c tools.cmake.cmaketoolchain:user_presets=""
 ```
 
 These commands generate:
