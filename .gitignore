@@ -46,6 +46,8 @@ frontend/*.tsbuildinfo
 .env
 .env.*
 !.env.example
+backend/config/config.json
+!backend/config/config.example.json
 
 # Logs
 *.log
