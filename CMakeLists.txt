@@ -7,6 +7,7 @@ find_package(OpenSSL REQUIRED)
 add_executable(scrumban
     backend/main.cc
     backend/repositories/UserRepository.cc
+    backend/services/AuthService.cc
     backend/utils/PasswordHasher.cc
 )
 
