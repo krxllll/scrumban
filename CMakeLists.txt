@@ -6,6 +6,7 @@ find_package(OpenSSL REQUIRED)
 
 add_executable(scrumban
     backend/main.cc
+    backend/controllers/AuthController.cc
     backend/repositories/UserRepository.cc
     backend/services/AuthService.cc
     backend/utils/JwtUtils.cc
