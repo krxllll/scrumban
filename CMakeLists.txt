@@ -3,7 +3,7 @@ project(scrumban)
 
 find_package(Drogon REQUIRED)
 
-add_executable(scrumban main.cpp)
+add_executable(scrumban backend/main.cc)
 
 target_compile_features(scrumban PRIVATE cxx_std_17)
 target_link_libraries(scrumban PRIVATE Drogon::Drogon)
