@@ -30,11 +30,16 @@ std::optional<Project> ProjectService::getProjectById(const std::string& project
         throw std::runtime_error("User id is required");
     }
 
+    auto project = ProjectRepository::findById(projectId);
+    if (!project.has_value()) {
+        return std::nullopt;
+    }
+
     if (!ProjectRepository::isMember(projectId, userId)) {
         throw std::runtime_error("User is not a member of this project");
     }
 
-    return ProjectRepository::findById(projectId);
+    return project;
 }
 
 std::vector<Project> ProjectService::getProjectsForUser(const std::string& userId) {
