@@ -6,16 +6,22 @@ find_package(OpenSSL REQUIRED)
 
 add_executable(scrumban
     backend/main.cc
+    backend/controllers/ActivityLogController.cc
     backend/controllers/AuthController.cc
     backend/controllers/BoardColumnController.cc
+    backend/controllers/CommentController.cc
     backend/controllers/ProjectController.cc
     backend/controllers/TaskController.cc
+    backend/repositories/ActivityLogRepository.cc
     backend/repositories/BoardColumnRepository.cc
+    backend/repositories/CommentRepository.cc
     backend/repositories/ProjectRepository.cc
     backend/repositories/TaskRepository.cc
     backend/repositories/UserRepository.cc
+    backend/services/ActivityLogService.cc
     backend/services/AuthService.cc
     backend/services/BoardColumnService.cc
+    backend/services/CommentService.cc
     backend/services/ProjectService.cc
     backend/services/TaskService.cc
     backend/utils/JwtUtils.cc
