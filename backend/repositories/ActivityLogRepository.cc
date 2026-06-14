@@ -96,6 +96,27 @@ std::vector<ActivityLog> ActivityLogRepository::findByTaskIds(const std::vector<
     return logs;
 }
 
+std::vector<ActivityLog> ActivityLogRepository::findRecentByProjectId(const std::string& projectId, const int limit) {
+    const auto result = drogon::app().getDbClient("default")->execSqlSync(
+        "SELECT al.id, al.task_id, al.user_id, al.action, al.old_value, al.new_value, al.created_at "
+        "FROM activity_logs al "
+        "JOIN tasks t ON t.id = al.task_id "
+        "WHERE t.project_id = $1 "
+        "ORDER BY al.created_at DESC "
+        "LIMIT $2::int",
+        projectId,
+        limit);
+
+    std::vector<ActivityLog> logs;
+    logs.reserve(result.size());
+
+    for (const auto& row : result) {
+        logs.push_back(mapRowToActivityLog(row));
+    }
+
+    return logs;
+}
+
 std::optional<ActivityLog> ActivityLogRepository::findById(const std::string& id) {
     const auto result = drogon::app().getDbClient("default")->execSqlSync(
         "SELECT id, task_id, user_id, action, old_value, new_value, created_at "

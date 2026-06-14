@@ -35,6 +35,22 @@ std::vector<ActivityLog> ActivityLogService::getLogsForTasks(const std::vector<s
     return ActivityLogRepository::findByTaskIds(taskIds);
 }
 
+std::vector<ActivityLog> ActivityLogService::getRecentLogsForProject(const std::string& projectId, const int limit) {
+    validateProjectId(projectId);
+
+    if (limit <= 0) {
+        throw std::runtime_error("Activity log limit must be greater than 0");
+    }
+
+    return ActivityLogRepository::findRecentByProjectId(projectId, limit);
+}
+
+void ActivityLogService::validateProjectId(const std::string& projectId) {
+    if (projectId.empty()) {
+        throw std::runtime_error("Project id is required");
+    }
+}
+
 void ActivityLogService::validateTaskId(const std::string& taskId) {
     if (taskId.empty()) {
         throw std::runtime_error("Task id is required");

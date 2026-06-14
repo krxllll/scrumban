@@ -13,8 +13,10 @@ public:
     [[nodiscard]] static ActivityLog record(const ActivityEvent& event);
     [[nodiscard]] static std::vector<ActivityLog> getLogsForTask(const std::string& taskId);
     [[nodiscard]] static std::vector<ActivityLog> getLogsForTasks(const std::vector<std::string>& taskIds);
+    [[nodiscard]] static std::vector<ActivityLog> getRecentLogsForProject(const std::string& projectId, int limit);
 
 private:
+    static void validateProjectId(const std::string& projectId);
     static void validateTaskId(const std::string& taskId);
     static void validateActivityEvent(const ActivityEvent& event);
 };
