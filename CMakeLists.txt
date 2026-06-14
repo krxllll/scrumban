@@ -19,6 +19,7 @@ add_executable(scrumban
     backend/services/ActivityLogService.cc
     backend/services/AuthService.cc
     backend/services/BoardColumnService.cc
+    backend/services/CommentService.cc
     backend/services/ProjectService.cc
     backend/services/TaskService.cc
     backend/utils/JwtUtils.cc
