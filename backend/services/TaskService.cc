@@ -1,6 +1,8 @@
 #include "TaskService.h"
 
+#include "ActivityLogService.h"
 #include "ProjectService.h"
+#include "../activity/ActivityEvent.h"
 #include "../repositories/BoardColumnRepository.h"
 #include "../repositories/TaskRepository.h"
 
@@ -45,18 +47,22 @@ Task TaskService::createTask(const std::string& projectId,
     ensureProjectMember(projectId, userId);
     ensureColumnBelongsToProject(projectId, columnId);
 
-    return TaskRepository::create(projectId,
-                                  columnId,
-                                  epicId,
-                                  parentTaskId,
-                                  title,
-                                  description,
-                                  priority,
-                                  dueDate,
-                                  storyPoints,
-                                  assigneeId,
-                                  userId,
-                                  position);
+    const auto createdTask = TaskRepository::create(projectId,
+                                                    columnId,
+                                                    epicId,
+                                                    parentTaskId,
+                                                    title,
+                                                    description,
+                                                    priority,
+                                                    dueDate,
+                                                    storyPoints,
+                                                    assigneeId,
+                                                    userId,
+                                                    position);
+
+    (void)ActivityLogService::record(TaskCreatedEvent(createdTask.id(), userId, createdTask.title()));
+
+    return createdTask;
 }
 
 Task TaskService::updateTask(const std::string& projectId,
@@ -77,16 +83,25 @@ Task TaskService::updateTask(const std::string& projectId,
     ensureProjectMember(projectId, userId);
     ensureTaskBelongsToProject(projectId, taskId);
 
-    return TaskRepository::update(taskId,
-                                  epicId,
-                                  parentTaskId,
-                                  title,
-                                  description,
-                                  priority,
-                                  dueDate,
-                                  storyPoints,
-                                  assigneeId,
-                                  position);
+    const auto existingTask = TaskRepository::findById(taskId);
+    if (!existingTask.has_value()) {
+        throw std::runtime_error("Task not found");
+    }
+
+    const auto updatedTask = TaskRepository::update(taskId,
+                                                    epicId,
+                                                    parentTaskId,
+                                                    title,
+                                                    description,
+                                                    priority,
+                                                    dueDate,
+                                                    storyPoints,
+                                                    assigneeId,
+                                                    position);
+
+    (void)ActivityLogService::record(TaskUpdatedEvent(taskId, userId, existingTask->title(), updatedTask.title()));
+
+    return updatedTask;
 }
 
 Task TaskService::moveTask(const std::string& projectId,
@@ -105,7 +120,16 @@ Task TaskService::moveTask(const std::string& projectId,
     ensureTaskBelongsToProject(projectId, taskId);
     ensureColumnBelongsToProject(projectId, columnId);
 
-    return TaskRepository::moveToColumn(taskId, columnId, position);
+    const auto existingTask = TaskRepository::findById(taskId);
+    if (!existingTask.has_value()) {
+        throw std::runtime_error("Task not found");
+    }
+
+    const auto movedTask = TaskRepository::moveToColumn(taskId, columnId, position);
+
+    (void)ActivityLogService::record(TaskMovedEvent(taskId, userId, existingTask->columnId(), columnId));
+
+    return movedTask;
 }
 
 void TaskService::deleteTask(const std::string& projectId,
@@ -116,7 +140,14 @@ void TaskService::deleteTask(const std::string& projectId,
     ensureProjectMember(projectId, userId);
     ensureTaskBelongsToProject(projectId, taskId);
 
+    const auto existingTask = TaskRepository::findById(taskId);
+    if (!existingTask.has_value()) {
+        throw std::runtime_error("Task not found");
+    }
+
     TaskRepository::remove(taskId);
+
+    // (void)ActivityLogService::record(TaskDeletedEvent(taskId, userId, existingTask->title()));
 }
 
 void TaskService::validateProjectAndUserIds(const std::string& projectId, const std::string& userId) {
