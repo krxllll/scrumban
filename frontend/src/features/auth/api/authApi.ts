@@ -5,7 +5,7 @@ import type {
   CurrentUserResponse,
   LoginRequest,
   RegisterRequest,
-} from "../model/authTypes";
+} from "../model/types.ts";
 
 export function registerUser(payload: RegisterRequest): Promise<AuthResponse> {
   return api.post<AuthResponse>("/api/auth/register", payload);
