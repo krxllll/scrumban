@@ -9,12 +9,15 @@ add_executable(scrumban
     backend/controllers/AuthController.cc
     backend/controllers/BoardColumnController.cc
     backend/controllers/ProjectController.cc
+    backend/controllers/TaskController.cc
     backend/repositories/BoardColumnRepository.cc
     backend/repositories/ProjectRepository.cc
+    backend/repositories/TaskRepository.cc
     backend/repositories/UserRepository.cc
     backend/services/AuthService.cc
     backend/services/BoardColumnService.cc
     backend/services/ProjectService.cc
+    backend/services/TaskService.cc
     backend/utils/JwtUtils.cc
     backend/utils/PasswordHasher.cc
 )
