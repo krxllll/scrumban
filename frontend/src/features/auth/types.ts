@@ -1,3 +1,7 @@
-export type AuthUser = {
-  id: string;
-};
+export type {
+  AuthResponse,
+  AuthUser,
+  CurrentUserResponse,
+  LoginRequest,
+  RegisterRequest,
+} from "./model/authTypes";
