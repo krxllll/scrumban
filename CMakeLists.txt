@@ -9,6 +9,7 @@ add_executable(scrumban
     backend/controllers/AuthController.cc
     backend/controllers/BoardColumnController.cc
     backend/controllers/ProjectController.cc
+    backend/controllers/TaskController.cc
     backend/repositories/BoardColumnRepository.cc
     backend/repositories/ProjectRepository.cc
     backend/repositories/TaskRepository.cc
