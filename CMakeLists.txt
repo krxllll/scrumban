@@ -16,6 +16,7 @@ add_executable(scrumban
     backend/services/AuthService.cc
     backend/services/BoardColumnService.cc
     backend/services/ProjectService.cc
+    backend/services/TaskService.cc
     backend/utils/JwtUtils.cc
     backend/utils/PasswordHasher.cc
 )
