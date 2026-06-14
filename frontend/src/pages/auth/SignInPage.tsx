@@ -1,3 +1,9 @@
+import { SignInForm } from "../../features/auth/ui/SignInForm";
+
 export function SignInPage() {
-  return <div>Sign in page placeholder</div>;
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-background p-6">
+      <SignInForm />
+    </main>
+  );
 }
