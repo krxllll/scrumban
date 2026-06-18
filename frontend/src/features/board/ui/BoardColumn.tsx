@@ -1,6 +1,6 @@
 import { useDroppable } from "@dnd-kit/core";
 import { cn } from "../../../shared/utils/cn";
-import type { BoardColumnViewModel } from "../model/types.ts";
+import type { BoardColumnViewModel } from "../model/types";
 import { AddTaskButton } from "./AddTaskButton";
 import { TaskCard } from "./TaskCard";
 import { WipIndicator } from "./WipIndicator";

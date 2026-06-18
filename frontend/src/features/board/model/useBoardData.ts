@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { getBoardColumns } from "../api/columnsApi.ts";
-import type { BoardColumn } from "./types.ts";
-import { getProjects } from "../../projects/api/projectsApi.ts";
-import type { Project } from "../../projects/model/types.ts";
-import { getTasks, moveTask } from "../../tasks/api/tasksApi.ts";
-import type { Task } from "../../tasks/model/types.ts";
+import { getProjects } from "../../projects/api/projectsApi";
+import type { Project } from "../../projects/model/types";
+import { getTasks, moveTask } from "../../tasks/api/tasksApi";
+import type { Task } from "../../tasks/model/types";
+import { getBoardColumns } from "../api/columnsApi";
+import type { BoardColumn } from "./types";
 
 type UseBoardDataResult = {
   project: Project | null;

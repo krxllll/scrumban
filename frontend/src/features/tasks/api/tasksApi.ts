@@ -4,7 +4,7 @@ import type {
   MoveTaskRequest,
   Task,
   UpdateTaskRequest,
-} from "../model/types.ts";
+} from "../model/types";
 
 type DeleteResponse = {
   deleted: boolean;

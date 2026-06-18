@@ -1,10 +1,10 @@
 import { CalendarDays, Filter, KanbanSquare, ListChecks, ListFilter, Rows3 } from "lucide-react";
 import { useMemo } from "react";
-import { BoardContainer } from "../../features/board/components/BoardContainer";
-import { SprintSummary } from "../../features/board/components/SprintSummary";
-import { mapBoardData } from "../../features/board/model/mapBoardData.ts";
-import { useBoardData } from "../../features/board/model/useBoardData.ts";
-import { useAuth } from "../../features/auth/model/useAuth.ts";
+import { BoardContainer } from "../../features/board/ui/BoardContainer";
+import { SprintSummary } from "../../features/board/ui/SprintSummary";
+import { mapBoardData } from "../../features/board/model/mapBoardData";
+import { useBoardData } from "../../features/board/model/useBoardData";
+import { useAuth } from "../../features/auth/model/useAuth";
 import { AppShell } from "../../shared/components/layout/AppShell";
 import { Button } from "../../shared/components/ui/Button";
 import { Tabs } from "../../shared/components/ui/Tabs";

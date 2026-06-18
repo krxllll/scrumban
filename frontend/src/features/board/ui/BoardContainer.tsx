@@ -6,7 +6,7 @@ import {
 } from "@dnd-kit/core";
 import { useState } from "react";
 import { BoardColumn } from "./BoardColumn";
-import type { BoardColumnViewModel } from "../model/types.ts";
+import type { BoardColumnViewModel } from "../model/types";
 import { TaskCardDragPreview } from "./TaskCard";
 
 type BoardContainerProps = {

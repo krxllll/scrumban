@@ -3,7 +3,7 @@ import type {
   BoardColumn,
   CreateBoardColumnRequest,
   UpdateBoardColumnRequest,
-} from "../model/types.ts";
+} from "../model/types";
 
 type DeleteResponse = {
   deleted: boolean;

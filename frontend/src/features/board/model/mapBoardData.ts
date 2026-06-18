@@ -1,9 +1,9 @@
-import type { Task, TaskPriority } from "../../tasks/model/types.ts";
+import type { Task, TaskPriority } from "../../tasks/model/types";
 import type {
   BoardColumn,
   BoardColumnViewModel,
   BoardPriority,
-} from "./types.ts";
+} from "./types";
 
 function mapPriority(priority: TaskPriority): BoardPriority {
   const priorities: Record<TaskPriority, BoardPriority> = {

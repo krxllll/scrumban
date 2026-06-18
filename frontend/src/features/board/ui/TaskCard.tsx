@@ -7,7 +7,7 @@ import type {
   BoardLabel,
   BoardPriority,
   BoardTaskViewModel,
-} from "../model/types.ts";
+} from "../model/types";
 
 type TaskCardProps = {
   task: BoardTaskViewModel;
