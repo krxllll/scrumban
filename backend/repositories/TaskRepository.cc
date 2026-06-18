@@ -180,7 +180,7 @@ Task TaskRepository::moveToColumn(const std::string& id,
         }
 
         const auto movingTask = mapRowToTask(taskResult[0]);
-        const auto sourceColumnId = movingTask.columnId();
+        const auto& sourceColumnId = movingTask.columnId();
 
         const auto sourceResult = transaction->execSqlSync(
             "SELECT id, project_id, column_id, epic_id, parent_task_id, title, description, "
@@ -235,12 +235,13 @@ Task TaskRepository::moveToColumn(const std::string& id,
         }
 
         for (std::size_t index = 0; index < temporaryUpdates.size(); ++index) {
+            constexpr int temporaryPositionOffset = 1000000;
             transaction->execSqlSync(
                 "UPDATE tasks "
                 "SET position = $2, updated_at = now() "
                 "WHERE id = $1",
                 temporaryUpdates[index].id,
-                -1000 - static_cast<int>(index));
+                temporaryPositionOffset + static_cast<int>(index));
         }
 
         for (std::size_t index = 0; index < sourceTasks.size(); ++index) {
