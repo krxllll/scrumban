@@ -1,12 +1,11 @@
-import { Badge } from "../../../shared/components/ui/Badge";
 import { cn } from "../../../shared/utils/cn";
-import type { BoardColumn as BoardColumnData } from "../mockBoardData";
+import type { BoardColumnViewModel } from "../model/types.ts";
 import { AddTaskButton } from "./AddTaskButton";
 import { TaskCard } from "./TaskCard";
 import { WipIndicator } from "./WipIndicator";
 
 type BoardColumnProps = {
-  column: BoardColumnData;
+  column: BoardColumnViewModel;
 };
 
 const accentClasses = {
@@ -23,7 +22,7 @@ export function BoardColumn({ column }: BoardColumnProps) {
       <div className={cn("h-1 w-full shrink-0", accentClasses[column.accent])} />
       <div className="flex items-center justify-between gap-2 px-3.5 pb-3 pt-4">
         <h2 className="text-base font-semibold text-text-primary">{column.title}</h2>
-        <WipIndicator count={column.tasks.length} limit={column.wipLimit} />
+        <WipIndicator count={column.tasks.length} limit={column.wipLimit ?? undefined} />
       </div>
 
       <div className="flex flex-col gap-2 px-3">

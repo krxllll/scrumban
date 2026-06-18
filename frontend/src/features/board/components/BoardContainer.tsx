@@ -1,11 +1,15 @@
-import { boardColumns } from "../mockBoardData";
 import { BoardColumn } from "./BoardColumn";
+import type { BoardColumnViewModel } from "../model/types.ts";
 
-export function BoardContainer() {
+type BoardContainerProps = {
+  columns: BoardColumnViewModel[];
+};
+
+export function BoardContainer({ columns }: BoardContainerProps) {
   return (
     <div className="min-h-[560px]">
       <div className="flex gap-4">
-        {boardColumns.map((column) => (
+        {columns.map((column) => (
           <BoardColumn column={column} key={column.id} />
         ))}
       </div>

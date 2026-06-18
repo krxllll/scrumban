@@ -1,6 +1,10 @@
-import {CalendarDays, Filter, KanbanSquare, ListChecks, ListFilter, Rows3} from "lucide-react";
+import { CalendarDays, Filter, KanbanSquare, ListChecks, ListFilter, Rows3 } from "lucide-react";
+import { useMemo } from "react";
 import { BoardContainer } from "../../features/board/components/BoardContainer";
 import { SprintSummary } from "../../features/board/components/SprintSummary";
+import { mapBoardData } from "../../features/board/model/mapBoardData.ts";
+import { useBoardData } from "../../features/board/model/useBoardData.ts";
+import { useAuth } from "../../features/auth/model/useAuth.ts";
 import { AppShell } from "../../shared/components/layout/AppShell";
 import { Button } from "../../shared/components/ui/Button";
 import { Tabs } from "../../shared/components/ui/Tabs";
@@ -12,6 +16,13 @@ const boardTabs = [
 ];
 
 export function BoardPage() {
+  const { token } = useAuth();
+  const { columns, tasks, project, isLoading, errorMessage } = useBoardData(token);
+  const boardColumns = useMemo(
+    () => mapBoardData(columns, tasks),
+    [columns, tasks],
+  );
+
   return (
     <AppShell>
       <div className="mt-4 flex min-h-0 flex-1 flex-col gap-4">
@@ -35,7 +46,27 @@ export function BoardPage() {
 
         <SprintSummary />
 
-        <BoardContainer />
+        {isLoading && (
+          <div className="glass-panel flex min-h-[560px] items-center justify-center rounded-[20px] text-sm font-semibold text-text-secondary">
+            Loading board...
+          </div>
+        )}
+
+        {!isLoading && errorMessage && (
+          <div className="glass-panel flex min-h-[560px] items-center justify-center rounded-[20px] text-sm font-semibold text-error">
+            {errorMessage}
+          </div>
+        )}
+
+        {!isLoading && !errorMessage && !project && (
+          <div className="glass-panel flex min-h-[560px] items-center justify-center rounded-[20px] text-sm font-semibold text-text-secondary">
+            No projects found
+          </div>
+        )}
+
+        {!isLoading && !errorMessage && project && (
+          <BoardContainer columns={boardColumns} />
+        )}
       </div>
     </AppShell>
   );

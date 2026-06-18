@@ -1,11 +1,15 @@
-import { CalendarDays, MessageCircle, ShieldAlert } from "lucide-react";
+import { CalendarDays, MessageCircle } from "lucide-react";
 import { Avatar } from "../../../shared/components/ui/Avatar";
 import { Badge } from "../../../shared/components/ui/Badge";
 import { cn } from "../../../shared/utils/cn";
-import type { BoardLabel, BoardPriority, BoardTask } from "../mockBoardData";
+import type {
+  BoardLabel,
+  BoardPriority,
+  BoardTaskViewModel,
+} from "../model/types.ts";
 
 type TaskCardProps = {
-  task: BoardTask;
+  task: BoardTaskViewModel;
 };
 
 const labelTones: Record<BoardLabel, "accent" | "info" | "warning" | "error" | "muted"> = {
