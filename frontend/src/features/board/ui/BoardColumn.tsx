@@ -9,6 +9,7 @@ type BoardColumnProps = {
   column: BoardColumnViewModel;
   activeTaskId: string | null;
   isMovingTask?: boolean;
+  onCreateTask: (columnId: string) => void;
 };
 
 const accentClasses = {
@@ -23,6 +24,7 @@ export function BoardColumn({
   activeTaskId,
   column,
   isMovingTask = false,
+  onCreateTask,
 }: BoardColumnProps) {
   const { isOver, setNodeRef } = useDroppable({
     id: column.id,
@@ -54,7 +56,7 @@ export function BoardColumn({
       </div>
 
       <div className="mt-auto p-3">
-        <AddTaskButton />
+        <AddTaskButton onClick={() => onCreateTask(column.id)} />
       </div>
     </section>
   );

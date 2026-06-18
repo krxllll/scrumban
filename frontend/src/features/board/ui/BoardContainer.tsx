@@ -12,6 +12,7 @@ import { TaskCardDragPreview } from "./TaskCard";
 type BoardContainerProps = {
   columns: BoardColumnViewModel[];
   isMovingTask?: boolean;
+  onCreateTask: (columnId: string) => void;
   onTaskMove: (
     taskId: string,
     columnId: string,
@@ -22,6 +23,7 @@ type BoardContainerProps = {
 export function BoardContainer({
   columns,
   isMovingTask = false,
+  onCreateTask,
   onTaskMove,
 }: BoardContainerProps) {
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
@@ -75,6 +77,7 @@ export function BoardContainer({
               column={column}
               isMovingTask={isMovingTask}
               key={column.id}
+              onCreateTask={onCreateTask}
             />
           ))}
         </div>

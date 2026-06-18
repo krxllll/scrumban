@@ -4,7 +4,11 @@ import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { UserMenu } from "../navigation/UserMenu";
 
-export function Topbar() {
+type TopbarProps = {
+  onCreateTask?: () => void;
+};
+
+export function Topbar({ onCreateTask }: TopbarProps) {
   return (
     <header className="flex h-12 shrink-0 items-center gap-3">
       <div className="flex min-w-0 flex-1 items-end gap-3">
@@ -19,7 +23,7 @@ export function Topbar() {
         <Input className="pl-9 text-sm" placeholder="Search tasks..." />
       </label>
 
-      <Button className="px-3.5 text-sm" variant="primary">
+      <Button className="px-3.5 text-sm" onClick={onCreateTask} variant="primary">
         <Plus size={16} />
         Create task
       </Button>
