@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../../../shared/components/ui/Button";
 import { Input } from "../../../shared/components/ui/Input";
 import { ApiError } from "../../../shared/lib/apiClient";
@@ -14,6 +15,7 @@ function getRegistrationErrorMessage(error: unknown): string {
 
 export function SignUpForm() {
   const { register } = useAuth();
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,6 +29,7 @@ export function SignUpForm() {
 
     try {
       await register(name, email, password);
+      navigate("/projects/demo/board", { replace: true });
     } catch (error) {
       setErrorMessage(getRegistrationErrorMessage(error));
     } finally {
@@ -35,7 +38,10 @@ export function SignUpForm() {
   }
 
   return (
-    <form className="glass-panel flex w-full max-w-md flex-col gap-5 rounded-2xl p-6" onSubmit={handleSubmit}>
+    <form
+      className="glass-panel flex w-full max-w-md flex-col gap-5 rounded-2xl p-6"
+      onSubmit={handleSubmit}
+    >
       <div className="space-y-1">
         <h1 className="text-xl font-semibold text-text-primary">Create account</h1>
         <p className="text-sm text-text-secondary">Start tracking your Scrumban work.</p>
@@ -89,9 +95,21 @@ export function SignUpForm() {
         </p>
       ) : null}
 
-      <Button className="w-full disabled:cursor-not-allowed disabled:opacity-60" disabled={isSubmitting} type="submit" variant="primary">
+      <Button
+        className="w-full disabled:cursor-not-allowed disabled:opacity-60"
+        disabled={isSubmitting}
+        type="submit"
+        variant="primary"
+      >
         {isSubmitting ? "Creating account..." : "Create account"}
       </Button>
+
+      <p className="text-center text-sm text-text-secondary">
+        Already have an account?{" "}
+        <Link className="font-semibold text-accent hover:underline" to="/login">
+          Log in
+        </Link>
+      </p>
     </form>
   );
 }

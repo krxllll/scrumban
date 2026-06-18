@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from "react";
-import { ApiError } from "../../../shared/lib/apiClient";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../../../shared/components/ui/Button";
 import { Input } from "../../../shared/components/ui/Input";
+import { ApiError } from "../../../shared/lib/apiClient";
 import { useAuth } from "../model/useAuth";
 
 function getLoginErrorMessage(error: unknown): string {
@@ -12,8 +13,9 @@ function getLoginErrorMessage(error: unknown): string {
   return "Login failed";
 }
 
-export function SignInForm() {
+export function LogInForm() {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -26,6 +28,7 @@ export function SignInForm() {
 
     try {
       await login(email, password);
+      navigate("/projects/demo/board", { replace: true });
     } catch (error) {
       setErrorMessage(getLoginErrorMessage(error));
     } finally {
@@ -34,19 +37,22 @@ export function SignInForm() {
   }
 
   return (
-    <form className="glass-panel flex w-full max-w-md flex-col gap-5 rounded-2xl p-6" onSubmit={handleSubmit}>
+    <form
+      className="glass-panel flex w-full max-w-md flex-col gap-5 rounded-2xl p-6"
+      onSubmit={handleSubmit}
+    >
       <div className="space-y-1">
-        <h1 className="text-xl font-semibold text-text-primary">Sign in</h1>
+        <h1 className="text-xl font-semibold text-text-primary">Log in</h1>
         <p className="text-sm text-text-secondary">Use your Scrumban account to continue.</p>
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-text-primary" htmlFor="signin-email">
+        <label className="text-sm font-medium text-text-primary" htmlFor="login-email">
           Email
         </label>
         <Input
           autoComplete="email"
-          id="signin-email"
+          id="login-email"
           onChange={(event) => setEmail(event.target.value)}
           required
           type="email"
@@ -55,12 +61,12 @@ export function SignInForm() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-text-primary" htmlFor="signin-password">
+        <label className="text-sm font-medium text-text-primary" htmlFor="login-password">
           Password
         </label>
         <Input
           autoComplete="current-password"
-          id="signin-password"
+          id="login-password"
           onChange={(event) => setPassword(event.target.value)}
           required
           type="password"
@@ -74,9 +80,21 @@ export function SignInForm() {
         </p>
       ) : null}
 
-      <Button className="w-full disabled:cursor-not-allowed disabled:opacity-60" disabled={isSubmitting} type="submit" variant="primary">
-        {isSubmitting ? "Signing in..." : "Sign in"}
+      <Button
+        className="w-full disabled:cursor-not-allowed disabled:opacity-60"
+        disabled={isSubmitting}
+        type="submit"
+        variant="primary"
+      >
+        {isSubmitting ? "Logging in..." : "Log in"}
       </Button>
+
+      <p className="text-center text-sm text-text-secondary">
+        Need an account?{" "}
+        <Link className="font-semibold text-accent hover:underline" to="/signup">
+          Sign up
+        </Link>
+      </p>
     </form>
   );
 }
