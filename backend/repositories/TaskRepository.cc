@@ -4,7 +4,35 @@
 #include <drogon/orm/DbClient.h>
 #include <drogon/orm/Result.h>
 
+#include <algorithm>
+#include <vector>
+
 namespace scrumban {
+
+namespace {
+
+struct TaskPositionUpdate {
+    std::string id;
+};
+
+void moveTaskToRequestedPosition(std::vector<Task>& tasks,
+                                 const Task& task,
+                                 const int requestedPosition) {
+    tasks.erase(std::remove_if(tasks.begin(),
+                               tasks.end(),
+                               [&task](const Task& currentTask) {
+                                   return currentTask.id() == task.id();
+                               }),
+                tasks.end());
+
+    const auto clampedPosition = std::clamp(requestedPosition,
+                                           0,
+                                           static_cast<int>(tasks.size()));
+
+    tasks.insert(tasks.begin() + clampedPosition, task);
+}
+
+}  // namespace
 
 std::optional<Task> TaskRepository::findById(const std::string& id) {
     const auto result = drogon::app().getDbClient("default")->execSqlSync(
@@ -135,18 +163,119 @@ Task TaskRepository::update(const std::string& id,
 Task TaskRepository::moveToColumn(const std::string& id,
                                   const std::string& columnId,
                                   int position) {
-    const auto result = drogon::app().getDbClient("default")->execSqlSync(
-        "UPDATE tasks "
-        "SET column_id = $2, position = $3, updated_at = now() "
-        "WHERE id = $1 "
-        "RETURNING id, project_id, column_id, epic_id, parent_task_id, title, description, "
-        "priority, due_date, story_points, assignee_id, reporter_id, position, "
-        "created_at, updated_at",
-        id,
-        columnId,
-        position);
+    const auto transaction = drogon::app().getDbClient("default")->newTransaction();
 
-    return mapRowToTask(result[0]);
+    try {
+        const auto taskResult = transaction->execSqlSync(
+            "SELECT id, project_id, column_id, epic_id, parent_task_id, title, description, "
+            "priority, due_date, story_points, assignee_id, reporter_id, position, "
+            "created_at, updated_at "
+            "FROM tasks "
+            "WHERE id = $1 "
+            "FOR UPDATE",
+            id);
+
+        if (taskResult.empty()) {
+            throw std::runtime_error("Task not found");
+        }
+
+        const auto movingTask = mapRowToTask(taskResult[0]);
+        const auto sourceColumnId = movingTask.columnId();
+
+        const auto sourceResult = transaction->execSqlSync(
+            "SELECT id, project_id, column_id, epic_id, parent_task_id, title, description, "
+            "priority, due_date, story_points, assignee_id, reporter_id, position, "
+            "created_at, updated_at "
+            "FROM tasks "
+            "WHERE column_id = $1 "
+            "ORDER BY position ASC, created_at ASC "
+            "FOR UPDATE",
+            sourceColumnId);
+        auto sourceTasks = mapRowsToTasks(sourceResult);
+
+        std::vector<Task> targetTasks;
+        if (sourceColumnId == columnId) {
+            moveTaskToRequestedPosition(sourceTasks, movingTask, position);
+        } else {
+            sourceTasks.erase(std::remove_if(sourceTasks.begin(),
+                                            sourceTasks.end(),
+                                            [&movingTask](const Task& currentTask) {
+                                                return currentTask.id() == movingTask.id();
+                                            }),
+                              sourceTasks.end());
+
+            const auto targetResult = transaction->execSqlSync(
+                "SELECT id, project_id, column_id, epic_id, parent_task_id, title, description, "
+                "priority, due_date, story_points, assignee_id, reporter_id, position, "
+                "created_at, updated_at "
+                "FROM tasks "
+                "WHERE column_id = $1 "
+                "ORDER BY position ASC, created_at ASC "
+                "FOR UPDATE",
+                columnId);
+            targetTasks = mapRowsToTasks(targetResult);
+            moveTaskToRequestedPosition(targetTasks, movingTask, position);
+        }
+
+        std::vector<TaskPositionUpdate> temporaryUpdates;
+        temporaryUpdates.reserve(sourceTasks.size() + targetTasks.size() + 1);
+
+        for (const auto& task : sourceTasks) {
+            temporaryUpdates.push_back({task.id()});
+        }
+        for (const auto& task : targetTasks) {
+            temporaryUpdates.push_back({task.id()});
+        }
+        if (std::none_of(temporaryUpdates.begin(),
+                         temporaryUpdates.end(),
+                         [&movingTask](const TaskPositionUpdate& update) {
+                             return update.id == movingTask.id();
+                         })) {
+            temporaryUpdates.push_back({movingTask.id()});
+        }
+
+        for (std::size_t index = 0; index < temporaryUpdates.size(); ++index) {
+            transaction->execSqlSync(
+                "UPDATE tasks "
+                "SET position = $2, updated_at = now() "
+                "WHERE id = $1",
+                temporaryUpdates[index].id,
+                -1000 - static_cast<int>(index));
+        }
+
+        for (std::size_t index = 0; index < sourceTasks.size(); ++index) {
+            transaction->execSqlSync(
+                "UPDATE tasks "
+                "SET column_id = $2, position = $3, updated_at = now() "
+                "WHERE id = $1",
+                sourceTasks[index].id(),
+                sourceColumnId,
+                static_cast<int>(index));
+        }
+
+        for (std::size_t index = 0; index < targetTasks.size(); ++index) {
+            transaction->execSqlSync(
+                "UPDATE tasks "
+                "SET column_id = $2, position = $3, updated_at = now() "
+                "WHERE id = $1",
+                targetTasks[index].id(),
+                columnId,
+                static_cast<int>(index));
+        }
+
+        const auto result = transaction->execSqlSync(
+            "SELECT id, project_id, column_id, epic_id, parent_task_id, title, description, "
+            "priority, due_date, story_points, assignee_id, reporter_id, position, "
+            "created_at, updated_at "
+            "FROM tasks "
+            "WHERE id = $1",
+            id);
+
+        return mapRowToTask(result[0]);
+    } catch (...) {
+        transaction->rollback();
+        throw;
+    }
 }
 
 void TaskRepository::remove(const std::string& id) {
@@ -217,6 +346,17 @@ Task TaskRepository::mapRowToTask(const drogon::orm::Row& row) {
         row["created_at"].as<std::string>(),
         row["updated_at"].as<std::string>(),
     };
+}
+
+std::vector<Task> TaskRepository::mapRowsToTasks(const drogon::orm::Result& result) {
+    std::vector<Task> tasks;
+    tasks.reserve(result.size());
+
+    for (const auto& row : result) {
+        tasks.push_back(mapRowToTask(row));
+    }
+
+    return tasks;
 }
 
 }  // namespace scrumban
