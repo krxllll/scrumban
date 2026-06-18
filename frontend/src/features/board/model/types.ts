@@ -26,6 +26,7 @@ export type BoardPriority = "Urgent" | "High" | "Medium" | "Low";
 
 export type BoardTaskViewModel = {
   id: string;
+  columnId: string;
   title: string;
   label: BoardLabel;
   priority: BoardPriority;

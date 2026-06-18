@@ -17,7 +17,15 @@ const boardTabs = [
 
 export function BoardPage() {
   const { token } = useAuth();
-  const { columns, tasks, project, isLoading, errorMessage } = useBoardData(token);
+  const {
+    columns,
+    tasks,
+    project,
+    isLoading,
+    isMovingTask,
+    errorMessage,
+    moveTaskOnBoard,
+  } = useBoardData(token);
   const boardColumns = useMemo(
     () => mapBoardData(columns, tasks),
     [columns, tasks],
@@ -52,7 +60,7 @@ export function BoardPage() {
           </div>
         )}
 
-        {!isLoading && errorMessage && (
+        {!isLoading && errorMessage && !project && (
           <div className="glass-panel flex min-h-[560px] items-center justify-center rounded-[20px] text-sm font-semibold text-error">
             {errorMessage}
           </div>
@@ -64,8 +72,19 @@ export function BoardPage() {
           </div>
         )}
 
-        {!isLoading && !errorMessage && project && (
-          <BoardContainer columns={boardColumns} />
+        {!isLoading && project && (
+          <>
+            {errorMessage && (
+              <div className="rounded-xl border border-error/30 bg-error/[0.08] px-4 py-3 text-sm font-semibold text-error">
+                {errorMessage}
+              </div>
+            )}
+            <BoardContainer
+              columns={boardColumns}
+              isMovingTask={isMovingTask}
+              onTaskMove={moveTaskOnBoard}
+            />
+          </>
         )}
       </div>
     </AppShell>

@@ -105,6 +105,7 @@ export function mapBoardData(
       wipLimit: column.wipLimit,
       tasks: sortedTasks.map((task) => ({
         id: task.id,
+        columnId: task.columnId,
         title: task.title,
         label: "Task",
         priority: mapPriority(task.priority),

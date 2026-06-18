@@ -1,3 +1,4 @@
+import { useDroppable } from "@dnd-kit/core";
 import { cn } from "../../../shared/utils/cn";
 import type { BoardColumnViewModel } from "../model/types.ts";
 import { AddTaskButton } from "./AddTaskButton";
@@ -6,6 +7,8 @@ import { WipIndicator } from "./WipIndicator";
 
 type BoardColumnProps = {
   column: BoardColumnViewModel;
+  activeTaskId: string | null;
+  isMovingTask?: boolean;
 };
 
 const accentClasses = {
@@ -16,9 +19,23 @@ const accentClasses = {
   success: "bg-success",
 };
 
-export function BoardColumn({ column }: BoardColumnProps) {
+export function BoardColumn({
+  activeTaskId,
+  column,
+  isMovingTask = false,
+}: BoardColumnProps) {
+  const { isOver, setNodeRef } = useDroppable({
+    id: column.id,
+  });
+
   return (
-    <section className="glass-panel flex flex-1 flex-col min-w-[200px] overflow-hidden rounded-[20px]">
+    <section
+      className={cn(
+        "glass-panel flex flex-1 flex-col min-w-[200px] overflow-hidden rounded-[20px] transition-colors",
+        isOver && "border-accent/50 bg-accent/[0.06]",
+      )}
+      ref={setNodeRef}
+    >
       <div className={cn("h-1 w-full shrink-0", accentClasses[column.accent])} />
       <div className="flex items-center justify-between gap-2 px-3.5 pb-3 pt-4">
         <h2 className="text-base font-semibold text-text-primary">{column.title}</h2>
@@ -27,7 +44,12 @@ export function BoardColumn({ column }: BoardColumnProps) {
 
       <div className="flex flex-col gap-2 px-3">
         {column.tasks.map((task) => (
-          <TaskCard key={task.id} task={task} />
+          <TaskCard
+            isDragging={activeTaskId === task.id}
+            isMoveDisabled={isMovingTask}
+            key={task.id}
+            task={task}
+          />
         ))}
       </div>
 
