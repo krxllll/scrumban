@@ -1,4 +1,3 @@
-import { CSS } from "@dnd-kit/utilities";
 import { useDraggable } from "@dnd-kit/core";
 import { CalendarDays, MessageCircle } from "lucide-react";
 import { Avatar } from "../../../shared/components/ui/Avatar";
@@ -16,6 +15,14 @@ type TaskCardProps = {
   isMoveDisabled?: boolean;
 };
 
+type TaskCardPreviewProps = {
+  task: BoardTaskViewModel;
+};
+
+type TaskCardShellProps = TaskCardPreviewProps & {
+  className?: string;
+};
+
 const labelTones: Record<BoardLabel, "accent" | "info" | "warning" | "error" | "muted"> = {
   Feature: "accent",
   Bug: "error",
@@ -31,36 +38,9 @@ const priorityTones: Record<BoardPriority, "warning" | "error" | "muted"> = {
   Low: "muted",
 };
 
-export function TaskCard({
-  isDragging = false,
-  isMoveDisabled = false,
-  task,
-}: TaskCardProps) {
-  const blocked = Boolean(task.blockedReason);
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: task.id,
-    data: {
-      columnId: task.columnId,
-    },
-    disabled: isMoveDisabled,
-  });
-  const style = {
-    transform: CSS.Translate.toString(transform),
-  };
-
+function TaskCardContent({ task }: TaskCardPreviewProps) {
   return (
-    <article
-      className={cn(
-        "rounded-2xl glass-panel p-3.5 touch-none transition-opacity",
-        blocked && "border-error/40 bg-error/[0.08]",
-        isDragging && "opacity-60",
-        !isMoveDisabled && "cursor-grab active:cursor-grabbing",
-      )}
-      ref={setNodeRef}
-      style={style}
-      {...listeners}
-      {...attributes}
-    >
+    <>
       <div className="flex items-start gap-2">
         <h3 className="flex-1 text-sm font-semibold text-text-primary">{task.title}</h3>
         <Avatar className="h-6 w-6 text-[10px]" name={task.assignee} tone={task.assigneeTone} />
@@ -82,6 +62,55 @@ export function TaskCard({
           {task.comments}
         </span>
       </div>
+    </>
+  );
+}
+
+function TaskCardShell({ className, task }: TaskCardShellProps) {
+  const blocked = Boolean(task.blockedReason);
+
+  return (
+    <article
+      className={cn(
+        "rounded-2xl glass-panel p-3.5",
+        blocked && "border-error/40 bg-error/[0.08]",
+        className,
+      )}
+    >
+      <TaskCardContent task={task} />
     </article>
+  );
+}
+
+export function TaskCardDragPreview({ task }: TaskCardPreviewProps) {
+  return <TaskCardShell className="shadow-2xl" task={task} />;
+}
+
+export function TaskCard({
+  isDragging = false,
+  isMoveDisabled = false,
+  task,
+}: TaskCardProps) {
+  const { attributes, listeners, setNodeRef } = useDraggable({
+    id: task.id,
+    data: {
+      columnId: task.columnId,
+    },
+    disabled: isMoveDisabled,
+  });
+
+  return (
+    <div
+      className={cn(
+        "touch-none transition-opacity",
+        isDragging && "opacity-0",
+        !isMoveDisabled && "cursor-grab active:cursor-grabbing",
+      )}
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+    >
+      <TaskCardShell task={task} />
+    </div>
   );
 }

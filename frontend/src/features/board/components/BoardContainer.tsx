@@ -1,11 +1,13 @@
 import {
   DndContext,
+  DragOverlay,
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { useState } from "react";
 import { BoardColumn } from "./BoardColumn";
 import type { BoardColumnViewModel } from "../model/types.ts";
+import { TaskCardDragPreview } from "./TaskCard";
 
 type BoardContainerProps = {
   columns: BoardColumnViewModel[];
@@ -23,6 +25,9 @@ export function BoardContainer({
   onTaskMove,
 }: BoardContainerProps) {
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const activeTask =
+    columns.flatMap((column) => column.tasks).find((task) => task.id === activeTaskId) ??
+    null;
 
   function handleDragStart(event: DragStartEvent) {
     setActiveTaskId(String(event.active.id));
@@ -48,6 +53,8 @@ export function BoardContainer({
     }
 
     if (sourceColumn.id === targetColumn.id) {
+      // Same-column reorder is intentionally skipped for now.
+      // The current MVP only supports moving tasks between columns.
       return;
     }
 
@@ -55,7 +62,11 @@ export function BoardContainer({
   }
 
   return (
-    <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
+    <DndContext
+      onDragCancel={() => setActiveTaskId(null)}
+      onDragEnd={handleDragEnd}
+      onDragStart={handleDragStart}
+    >
       <div className="min-h-[560px]">
         <div className="flex gap-4">
           {columns.map((column) => (
@@ -68,6 +79,9 @@ export function BoardContainer({
           ))}
         </div>
       </div>
+      <DragOverlay>
+        {activeTask ? <TaskCardDragPreview task={activeTask} /> : null}
+      </DragOverlay>
     </DndContext>
   );
 }
