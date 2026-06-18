@@ -1,4 +1,4 @@
-const DEFAULT_API_BASE_URL = "http://localhost:8080";
+const DEFAULT_API_BASE_URL = "";
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -25,6 +25,7 @@ export class ApiError extends Error {
   }
 }
 
+// Leave VITE_API_BASE_URL empty for local Vite proxy mode; set it only when the API is hosted elsewhere.
 const apiBaseUrl =
   import.meta.env.VITE_API_BASE_URL?.trim() || DEFAULT_API_BASE_URL;
 
@@ -123,5 +124,3 @@ export const api = {
   del: <T>(path: string, options?: Omit<ApiRequestOptions, "body" | "method">) =>
     apiRequest<T>(path, { ...options, method: "DELETE" }),
 };
-
-export const apiClient = api;
