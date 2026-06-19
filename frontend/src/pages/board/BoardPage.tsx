@@ -5,8 +5,13 @@ import { SprintSummary } from "../../features/board/ui/SprintSummary";
 import { mapBoardData } from "../../features/board/model/mapBoardData";
 import { useBoardData } from "../../features/board/model/useBoardData";
 import { useAuth } from "../../features/auth/model/useAuth";
+import { useProjectSelection } from "../../features/projects/model/useProjectSelection";
 import { useTaskActions } from "../../features/tasks/model/useTaskActions";
-import type { CreateTaskRequest, Task, UpdateTaskRequest } from "../../features/tasks/model/types";
+import type {
+  CreateTaskRequest,
+  Task,
+  UpdateTaskRequest,
+} from "../../features/tasks/model/types";
 import {
   TaskFormModal,
   type TaskFormModalMode,
@@ -32,15 +37,22 @@ type TaskFormModalState = {
 export function BoardPage() {
   const { token, user } = useAuth();
   const {
+    projects,
+    selectedProjectId,
+    selectedProject,
+    isLoadingProjects,
+    projectErrorMessage,
+    selectProject,
+  } = useProjectSelection(token);
+  const {
     columns,
     tasks,
-    project,
     isLoading,
     isMovingTask,
     errorMessage,
     refetch,
     moveTaskOnBoard,
-  } = useBoardData(token);
+  } = useBoardData(token, selectedProjectId);
   const {
     clearError: clearTaskActionError,
     createTaskAction,
@@ -95,7 +107,7 @@ export function BoardPage() {
   }
 
   async function handleCreateTask(values: TaskFormValues): Promise<void> {
-    if (!project) {
+    if (!selectedProject) {
       return;
     }
 
@@ -114,13 +126,13 @@ export function BoardPage() {
       position,
     };
 
-    await createTaskAction(project.id, payload);
+    await createTaskAction(selectedProject.id, payload);
     closeTaskFormModal();
     await refetch();
   }
 
   async function handleUpdateTask(values: TaskFormValues): Promise<void> {
-    if (!project || !selectedTask) {
+    if (!selectedProject || !selectedTask) {
       return;
     }
 
@@ -136,7 +148,7 @@ export function BoardPage() {
       position: selectedTask.position,
     };
 
-    await updateTaskAction(project.id, selectedTask.id, payload);
+    await updateTaskAction(selectedProject.id, selectedTask.id, payload);
     closeTaskFormModal();
     await refetch();
   }
@@ -151,17 +163,28 @@ export function BoardPage() {
   }
 
   async function handleDeleteTask(): Promise<void> {
-    if (!project || !selectedTask) {
+    if (!selectedProject || !selectedTask) {
       return;
     }
 
-    await deleteTaskAction(project.id, selectedTask.id);
+    await deleteTaskAction(selectedProject.id, selectedTask.id);
     closeTaskFormModal();
     await refetch();
   }
 
   return (
-    <AppShell onCreateTask={() => openCreateTaskModal(boardColumns[0]?.id ?? null)}>
+    <AppShell
+      activeProjectId={selectedProjectId}
+      isLoadingProjects={isLoadingProjects}
+      onCreateTask={() => openCreateTaskModal(boardColumns[0]?.id ?? null)}
+      onSelectProject={selectProject}
+      projectTitle={
+        isLoadingProjects
+          ? "Loading project..."
+          : selectedProject?.name ?? "No project selected"
+      }
+      projects={projects}
+    >
       <div className="mt-4 flex min-h-0 flex-1 flex-col gap-4">
         <div className="flex flex-wrap items-center justify-between gap-2.5">
           <Tabs items={boardTabs} />
@@ -189,19 +212,32 @@ export function BoardPage() {
           </div>
         )}
 
-        {!isLoading && errorMessage && !project && (
+        {!isLoadingProjects && projectErrorMessage && (
+          <div className="glass-panel flex min-h-[560px] items-center justify-center rounded-[20px] text-sm font-semibold text-error">
+            {projectErrorMessage}
+          </div>
+        )}
+
+        {!isLoading &&
+          errorMessage &&
+          !selectedProject &&
+          !projectErrorMessage && (
           <div className="glass-panel flex min-h-[560px] items-center justify-center rounded-[20px] text-sm font-semibold text-error">
             {errorMessage}
           </div>
         )}
 
-        {!isLoading && !errorMessage && !project && (
+        {!isLoadingProjects &&
+          !isLoading &&
+          !projectErrorMessage &&
+          !errorMessage &&
+          !selectedProject && (
           <div className="glass-panel flex min-h-[560px] items-center justify-center rounded-[20px] text-sm font-semibold text-text-secondary">
             No projects found
           </div>
         )}
 
-        {!isLoading && project && (
+        {!isLoading && selectedProject && (
           <>
             {errorMessage && (
               <div className="rounded-xl border border-error/30 bg-error/[0.08] px-4 py-3 text-sm font-semibold text-error">
@@ -230,7 +266,7 @@ export function BoardPage() {
         onDelete={taskFormModal.mode === "edit" ? handleDeleteTask : undefined}
         onSubmit={handleTaskFormSubmit}
         onTaskCommentsChanged={refetch}
-        projectId={project?.id ?? null}
+        projectId={selectedProject?.id ?? null}
         task={selectedTask}
         token={token}
       />
