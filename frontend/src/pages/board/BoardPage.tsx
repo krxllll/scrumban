@@ -228,7 +228,9 @@ export function BoardPage() {
         onClose={closeTaskFormModal}
         onDelete={taskFormModal.mode === "edit" ? handleDeleteTask : undefined}
         onSubmit={handleTaskFormSubmit}
+        projectId={project?.id ?? null}
         task={selectedTask}
+        token={token}
       />
     </AppShell>
   );
