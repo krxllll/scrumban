@@ -10,6 +10,7 @@ type AppShellProps = {
   isLoadingProjects?: boolean;
   projectTitle?: string;
   onSelectProject?: (projectId: string) => void;
+  onCreateProject?: () => void;
   onCreateTask?: () => void;
 };
 
@@ -20,6 +21,7 @@ export function AppShell({
   isLoadingProjects = false,
   projectTitle = "No project selected",
   onSelectProject,
+  onCreateProject,
   onCreateTask,
 }: AppShellProps) {
   return (
@@ -31,6 +33,7 @@ export function AppShell({
           <Sidebar
             activeProjectId={activeProjectId}
             isLoadingProjects={isLoadingProjects}
+            onCreateProject={onCreateProject}
             onSelectProject={onSelectProject}
             projects={projects}
           />

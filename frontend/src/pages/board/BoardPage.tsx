@@ -6,11 +6,16 @@ import { SprintSummary } from "../../features/board/ui/SprintSummary";
 import { mapBoardData } from "../../features/board/model/mapBoardData";
 import { useBoardData } from "../../features/board/model/useBoardData";
 import { useAuth } from "../../features/auth/model/useAuth";
+import { createProject } from "../../features/projects/api/projectsApi";
 import {
   createProjectBoardPath,
   createProjectRouteSlug,
 } from "../../features/projects/model/projectSlug";
 import { useProjectSelection } from "../../features/projects/model/useProjectSelection";
+import {
+  CreateProjectModal,
+  type CreateProjectFormValues,
+} from "../../features/projects/ui/CreateProjectModal";
 import { useTaskActions } from "../../features/tasks/model/useTaskActions";
 import type {
   CreateTaskRequest,
@@ -25,6 +30,7 @@ import {
 import { AppShell } from "../../shared/components/layout/AppShell";
 import { Button } from "../../shared/components/ui/Button";
 import { Tabs } from "../../shared/components/ui/Tabs";
+import { ApiError } from "../../shared/lib/apiClient";
 
 const boardTabs = [
   { label: "Board", icon: KanbanSquare, active: true },
@@ -49,6 +55,7 @@ export function BoardPage() {
     selectedProject,
     isLoadingProjects,
     projectErrorMessage,
+    refetchProjects,
     selectProject,
   } = useProjectSelection(token);
   const {
@@ -74,6 +81,12 @@ export function BoardPage() {
     initialColumnId: null,
     taskId: null,
   });
+  const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] =
+    useState(false);
+  const [isCreatingProject, setIsCreatingProject] = useState(false);
+  const [createProjectErrorMessage, setCreateProjectErrorMessage] = useState<
+    string | null
+  >(null);
   const boardColumns = useMemo(
     () => mapBoardData(columns, tasks),
     [columns, tasks],
@@ -121,6 +134,50 @@ export function BoardPage() {
 
     if (project) {
       navigate(createProjectBoardPath(project));
+    }
+  }
+
+  function openCreateProjectModal(): void {
+    setCreateProjectErrorMessage(null);
+    setIsCreateProjectModalOpen(true);
+  }
+
+  function closeCreateProjectModal(): void {
+    if (isCreatingProject) {
+      return;
+    }
+
+    setCreateProjectErrorMessage(null);
+    setIsCreateProjectModalOpen(false);
+  }
+
+  async function handleCreateProject(
+    values: CreateProjectFormValues,
+  ): Promise<void> {
+    if (!token) {
+      setCreateProjectErrorMessage("Unable to create project without signing in");
+      return;
+    }
+
+    setIsCreatingProject(true);
+    setCreateProjectErrorMessage(null);
+
+    try {
+      const createdProject = await createProject(token, values);
+
+      await refetchProjects();
+      selectProject(createdProject.id);
+      navigate(createProjectBoardPath(createdProject));
+      setIsCreateProjectModalOpen(false);
+    } catch (error) {
+      setCreateProjectErrorMessage(
+        error instanceof ApiError && error.message.trim()
+          ? error.message
+          : "Failed to create project",
+      );
+      throw error;
+    } finally {
+      setIsCreatingProject(false);
     }
   }
 
@@ -224,6 +281,7 @@ export function BoardPage() {
     <AppShell
       activeProjectId={selectedProjectId}
       isLoadingProjects={isLoadingProjects}
+      onCreateProject={openCreateProjectModal}
       onCreateTask={() => openCreateTaskModal(boardColumns[0]?.id ?? null)}
       onSelectProject={handleSelectProject}
       projectTitle={
@@ -317,6 +375,13 @@ export function BoardPage() {
         projectId={selectedProject?.id ?? null}
         task={selectedTask}
         token={token}
+      />
+      <CreateProjectModal
+        errorMessage={createProjectErrorMessage}
+        isOpen={isCreateProjectModalOpen}
+        isSubmitting={isCreatingProject}
+        onClose={closeCreateProjectModal}
+        onSubmit={handleCreateProject}
       />
     </AppShell>
   );

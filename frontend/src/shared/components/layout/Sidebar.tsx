@@ -10,6 +10,7 @@ type SidebarProps = {
   projects: Project[];
   activeProjectId: string | null;
   isLoadingProjects: boolean;
+  onCreateProject?: () => void;
   onSelectProject?: (projectId: string) => void;
 };
 
@@ -17,6 +18,7 @@ export function Sidebar({
   projects,
   activeProjectId,
   isLoadingProjects,
+  onCreateProject,
   onSelectProject,
 }: SidebarProps) {
   const { logout } = useAuth();
@@ -47,6 +49,7 @@ export function Sidebar({
           <button
             aria-label="Add project"
             className="text-text-secondary transition-colors hover:text-text-primary"
+            onClick={onCreateProject}
             type="button"
           >
             <Plus size={14} />
