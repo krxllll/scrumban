@@ -9,9 +9,10 @@ type TabItem = {
 
 type TabsProps = {
   items: TabItem[];
+  onSelect?: (label: string) => void;
 };
 
-export function Tabs({ items }: TabsProps) {
+export function Tabs({ items, onSelect }: TabsProps) {
   return (
     <div className="flex items-center gap-2.5">
       {items.map((item) => {
@@ -24,6 +25,7 @@ export function Tabs({ items }: TabsProps) {
               item.active && "border border-accent/20 bg-accent/15 text-accent",
             )}
             key={item.label}
+            onClick={() => onSelect?.(item.label)}
             type="button"
           >
             <Icon size={16} className={cn(item.active && "text-accent")} />

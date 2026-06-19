@@ -1,11 +1,21 @@
 import { BarChart3, Plus, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../features/auth/model/useAuth";
 import { Avatar } from "../ui/Avatar";
 import { ProjectSwitcher } from "../navigation/ProjectSwitcher";
-import { Button } from "../ui/Button.tsx";
+import { Button } from "../ui/Button";
 
 const projects = ["Mobile App Redesign", "Website Update", "Research Tracker"];
 
 export function Sidebar() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  function handleLogout(): void {
+    logout();
+    navigate("/login", { replace: true });
+  }
+
   return (
     <aside className="glass-panel relative flex min-h-[calc(100vh-48px)] w-60 shrink-0 flex-col rounded-[28px] px-[18px] pb-[18px] pt-6">
       <div className="flex items-center gap-3">
@@ -36,7 +46,12 @@ export function Sidebar() {
             <p className="truncate text-xs text-text-secondary">Project owner</p>
           </div>
         </div>
-        <Button className="h-[32px]" variant="ghost">
+        <Button
+          aria-label="Log out"
+          className="h-[32px]"
+          onClick={handleLogout}
+          variant="ghost"
+        >
           <LogOut size={16} />
         </Button>
       </div>

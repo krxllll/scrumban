@@ -4,9 +4,10 @@ import { Topbar } from "./Topbar";
 
 type AppShellProps = {
   children: ReactNode;
+  onCreateTask?: () => void;
 };
 
-export function AppShell({ children }: AppShellProps) {
+export function AppShell({ children, onCreateTask }: AppShellProps) {
   return (
     <div className="min-h-screen overflow-hidden bg-background text-text-primary">
       <div className="pointer-events-none fixed left-[48%] top-[-220px] h-[520px] w-[520px] rounded-full bg-accent/20 blur-[110px]" />
@@ -15,7 +16,7 @@ export function AppShell({ children }: AppShellProps) {
         <div className="mx-auto flex gap-5">
           <Sidebar />
           <main className="glass-panel flex min-h-[calc(100vh-48px)] min-w-0 flex-1 flex-col rounded-[28px] p-5">
-            <Topbar />
+            <Topbar onCreateTask={onCreateTask} />
             {children}
           </main>
         </div>

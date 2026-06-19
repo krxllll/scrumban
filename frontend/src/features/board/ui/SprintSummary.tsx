@@ -1,5 +1,13 @@
 import { ProgressBar } from "../../../shared/components/ui/ProgressBar";
-import { sprintSummary } from "../mockBoardData";
+
+const sprintSummary = {
+  goal: "Improve the core board workflow, task editing, and sprint completion flow before v1.0.",
+  totalTasks: 24,
+  completed: 16,
+  inProgress: 5,
+  blocked: 2,
+  progress: 67,
+};
 
 const stats = [
   { label: "Total tasks", value: sprintSummary.totalTasks },

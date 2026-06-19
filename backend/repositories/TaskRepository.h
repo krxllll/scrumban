@@ -2,7 +2,7 @@
 
 #include "../models/Task.h"
 
-#include <drogon/orm/Row.h>
+#include <drogon/orm/Result.h>
 
 #include <optional>
 #include <string>
@@ -51,6 +51,7 @@ public:
 
 private:
     static Task mapRowToTask(const drogon::orm::Row& row);
+    static std::vector<Task> mapRowsToTasks(const drogon::orm::Result& result);
 };
 
 }  // namespace scrumban

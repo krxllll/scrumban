@@ -1,4 +1,4 @@
-import {Badge} from "../../../shared/components/ui/Badge.tsx";
+import { Badge } from "../../../shared/components/ui/Badge";
 
 type WipIndicatorProps = {
   count: number;
