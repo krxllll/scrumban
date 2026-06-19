@@ -1,6 +1,7 @@
-import { ListChecks, MessageCircle, X } from "lucide-react";
+import { Activity, ListChecks, MessageCircle, X } from "lucide-react";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import type { AuthUser } from "../../auth/model/types";
+import { TaskActivityPanel } from "../../activity/ui/TaskActivityPanel";
 import type { BoardColumnViewModel } from "../../board/model/types";
 import { TaskCommentsPanel } from "../../comments/ui/TaskCommentsPanel";
 import { Button } from "../../../shared/components/ui/Button";
@@ -38,7 +39,7 @@ type TaskFormModalProps = {
   onSubmit: (values: TaskFormValues) => Promise<void>;
 };
 
-type TaskModalTab = "Details" | "Comments";
+type TaskModalTab = "Details" | "Comments" | "Activity";
 
 const priorityOptions: Array<{ label: string; value: TaskPriority }> = [
   { label: "Low", value: "LOW" },
@@ -118,10 +119,14 @@ export function TaskFormModal({
   const isEditMode = mode === "edit";
   const visibleErrorMessage = validationMessage ?? errorMessage;
   const canShowComments = isEditMode && Boolean(task && projectId);
+  const canShowActivity = isEditMode && Boolean(task && projectId);
   const modalTabs = [
     { label: "Details", icon: ListChecks, active: activeTab === "Details" },
     ...(canShowComments
       ? [{ label: "Comments", icon: MessageCircle, active: activeTab === "Comments" }]
+      : []),
+    ...(canShowActivity
+      ? [{ label: "Activity", icon: Activity, active: activeTab === "Activity" }]
       : []),
   ];
 
@@ -335,6 +340,16 @@ export function TaskFormModal({
             <TaskCommentsPanel
               currentUser={currentUser}
               onCommentsChanged={onTaskCommentsChanged}
+              projectId={projectId}
+              taskId={task.id}
+              token={token}
+            />
+          </div>
+        )}
+
+        {activeTab === "Activity" && canShowActivity && task && (
+          <div className="mt-5">
+            <TaskActivityPanel
               projectId={projectId}
               taskId={task.id}
               token={token}
