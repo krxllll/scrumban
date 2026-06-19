@@ -111,7 +111,7 @@ export function mapBoardData(
         priority: mapPriority(task.priority),
         dueDate: formatDueDate(task.dueDate),
         storyPoints: task.storyPoints ?? 0,
-        comments: 0,
+        comments: task.commentCount ?? task.commentsCount ?? 0,
         assignee: task.assigneeId ?? "Unassigned",
         assigneeTone: getAssigneeTone(task),
       })),

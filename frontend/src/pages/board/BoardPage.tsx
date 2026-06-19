@@ -30,7 +30,7 @@ type TaskFormModalState = {
 };
 
 export function BoardPage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const {
     columns,
     tasks,
@@ -220,6 +220,7 @@ export function BoardPage() {
       </div>
       <TaskFormModal
         columns={boardColumns}
+        currentUser={user}
         errorMessage={taskActionErrorMessage}
         initialColumnId={taskFormModal.initialColumnId}
         isOpen={taskFormModal.isOpen}
@@ -228,6 +229,7 @@ export function BoardPage() {
         onClose={closeTaskFormModal}
         onDelete={taskFormModal.mode === "edit" ? handleDeleteTask : undefined}
         onSubmit={handleTaskFormSubmit}
+        onTaskCommentsChanged={refetch}
         projectId={project?.id ?? null}
         task={selectedTask}
         token={token}

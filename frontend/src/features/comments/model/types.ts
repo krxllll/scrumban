@@ -2,6 +2,7 @@ export type Comment = {
   id: string;
   taskId: string;
   authorId: string;
+  authorName?: string | null;
   content: string;
   createdAt: string;
   updatedAt: string;

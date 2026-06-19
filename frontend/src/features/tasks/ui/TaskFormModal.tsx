@@ -1,5 +1,6 @@
 import { ListChecks, MessageCircle, X } from "lucide-react";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+import type { AuthUser } from "../../auth/model/types";
 import type { BoardColumnViewModel } from "../../board/model/types";
 import { TaskCommentsPanel } from "../../comments/ui/TaskCommentsPanel";
 import { Button } from "../../../shared/components/ui/Button";
@@ -22,6 +23,7 @@ export type TaskFormValues = {
 
 type TaskFormModalProps = {
   columns: BoardColumnViewModel[];
+  currentUser: AuthUser | null;
   errorMessage: string | null;
   initialColumnId: string | null;
   isOpen: boolean;
@@ -32,6 +34,7 @@ type TaskFormModalProps = {
   token: string | null;
   onClose: () => void;
   onDelete?: () => Promise<void>;
+  onTaskCommentsChanged?: () => Promise<void> | void;
   onSubmit: (values: TaskFormValues) => Promise<void>;
 };
 
@@ -66,6 +69,7 @@ function formatDateInputValue(dueDate?: string | null): string {
 
 export function TaskFormModal({
   columns,
+  currentUser,
   errorMessage,
   initialColumnId,
   isOpen,
@@ -76,6 +80,7 @@ export function TaskFormModal({
   token,
   onClose,
   onDelete,
+  onTaskCommentsChanged,
   onSubmit,
 }: TaskFormModalProps) {
   const selectedInitialColumnId = useMemo(
@@ -328,6 +333,8 @@ export function TaskFormModal({
         {activeTab === "Comments" && canShowComments && task && (
           <div className="mt-5">
             <TaskCommentsPanel
+              currentUser={currentUser}
+              onCommentsChanged={onTaskCommentsChanged}
               projectId={projectId}
               taskId={task.id}
               token={token}

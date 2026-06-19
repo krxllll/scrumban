@@ -1,11 +1,15 @@
 import { useState } from "react";
+import type { AuthUser } from "../../auth/model/types";
 import { Button } from "../../../shared/components/ui/Button";
 import { useComments } from "../model/useComments";
+import type { Comment } from "../model/types";
 
 type TaskCommentsPanelProps = {
+  currentUser: AuthUser | null;
   token: string | null;
   projectId: string | null;
   taskId: string | null;
+  onCommentsChanged?: () => Promise<void> | void;
 };
 
 function formatCommentDate(value: string): string {
@@ -21,10 +25,27 @@ function formatCommentDate(value: string): string {
   }).format(date);
 }
 
+function getCommentAuthorName(
+  comment: Comment,
+  currentUser: AuthUser | null,
+): string {
+  if (comment.authorName?.trim()) {
+    return comment.authorName;
+  }
+
+  if (currentUser && comment.authorId === currentUser.id) {
+    return currentUser.name;
+  }
+
+  return "User";
+}
+
 export function TaskCommentsPanel({
+  currentUser,
   token,
   projectId,
   taskId,
+  onCommentsChanged,
 }: TaskCommentsPanelProps) {
   const [content, setContent] = useState("");
   const {
@@ -43,6 +64,7 @@ export function TaskCommentsPanel({
     try {
       await createCommentAction(content);
       setContent("");
+      await onCommentsChanged?.();
     } catch {
       // useComments owns the visible error message.
     }
@@ -95,7 +117,9 @@ export function TaskCommentsPanel({
               key={comment.id}
             >
               <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-semibold text-text-primary">User</p>
+                <p className="text-sm font-semibold text-text-primary">
+                  {getCommentAuthorName(comment, currentUser)}
+                </p>
                 <time className="text-xs text-text-secondary">
                   {formatCommentDate(comment.createdAt)}
                 </time>

@@ -14,6 +14,8 @@ export type Task = {
   assigneeId?: string | null;
   reporterId: string;
   position: number;
+  commentCount?: number | null;
+  commentsCount?: number | null;
   createdAt: string;
   updatedAt: string;
 };
