@@ -10,6 +10,7 @@ type BoardColumnProps = {
   activeTaskId: string | null;
   isMovingTask?: boolean;
   onCreateTask: (columnId: string) => void;
+  onEditTask: (taskId: string) => void;
 };
 
 const accentClasses = {
@@ -25,6 +26,7 @@ export function BoardColumn({
   column,
   isMovingTask = false,
   onCreateTask,
+  onEditTask,
 }: BoardColumnProps) {
   const { isOver, setNodeRef } = useDroppable({
     id: column.id,
@@ -50,6 +52,7 @@ export function BoardColumn({
             isDragging={activeTaskId === task.id}
             isMoveDisabled={isMovingTask}
             key={task.id}
+            onEdit={onEditTask}
             task={task}
           />
         ))}

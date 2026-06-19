@@ -13,6 +13,7 @@ type TaskCardProps = {
   task: BoardTaskViewModel;
   isDragging?: boolean;
   isMoveDisabled?: boolean;
+  onEdit: (taskId: string) => void;
 };
 
 type TaskCardPreviewProps = {
@@ -89,6 +90,7 @@ export function TaskCardDragPreview({ task }: TaskCardPreviewProps) {
 export function TaskCard({
   isDragging = false,
   isMoveDisabled = false,
+  onEdit,
   task,
 }: TaskCardProps) {
   const { attributes, listeners, setNodeRef } = useDraggable({
@@ -99,6 +101,10 @@ export function TaskCard({
     disabled: isMoveDisabled,
   });
 
+  function handleClick() {
+    onEdit(task.id);
+  }
+
   return (
     <div
       className={cn(
@@ -106,6 +112,7 @@ export function TaskCard({
         isDragging && "opacity-0",
         !isMoveDisabled && "cursor-grab active:cursor-grabbing",
       )}
+      onClick={handleClick}
       ref={setNodeRef}
       {...listeners}
       {...attributes}

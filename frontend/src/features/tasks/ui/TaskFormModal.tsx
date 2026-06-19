@@ -4,16 +4,31 @@ import type { BoardColumnViewModel } from "../../board/model/types";
 import { Button } from "../../../shared/components/ui/Button";
 import { Input } from "../../../shared/components/ui/Input";
 import { cn } from "../../../shared/utils/cn";
-import type { CreateTaskRequest, TaskPriority } from "../model/types";
+import type { Task, TaskPriority } from "../model/types";
 
-type CreateTaskModalProps = {
+export type TaskFormModalMode = "create" | "edit";
+
+export type TaskFormValues = {
+  columnId: string;
+  title: string;
+  description?: string | null;
+  priority: TaskPriority;
+  dueDate?: string | null;
+  storyPoints?: number | null;
+  assigneeId?: string | null;
+};
+
+type TaskFormModalProps = {
   columns: BoardColumnViewModel[];
   errorMessage: string | null;
   initialColumnId: string | null;
   isOpen: boolean;
   isSubmitting: boolean;
+  mode: TaskFormModalMode;
+  task?: Task | null;
   onClose: () => void;
-  onSubmit: (payload: CreateTaskRequest) => Promise<void>;
+  onDelete?: () => Promise<void>;
+  onSubmit: (values: TaskFormValues) => Promise<void>;
 };
 
 const priorityOptions: Array<{ label: string; value: TaskPriority }> = [
@@ -26,24 +41,38 @@ const priorityOptions: Array<{ label: string; value: TaskPriority }> = [
 function getInitialColumnId(
   columns: BoardColumnViewModel[],
   initialColumnId: string | null,
+  task?: Task | null,
 ): string {
-  return columns.some((column) => column.id === initialColumnId)
-    ? initialColumnId ?? ""
+  const preferredColumnId = task?.columnId ?? initialColumnId;
+
+  return columns.some((column) => column.id === preferredColumnId)
+    ? preferredColumnId ?? ""
     : columns[0]?.id ?? "";
 }
 
-export function CreateTaskModal({
+function formatDateInputValue(dueDate?: string | null): string {
+  if (!dueDate) {
+    return "";
+  }
+
+  return dueDate.slice(0, 10);
+}
+
+export function TaskFormModal({
   columns,
   errorMessage,
   initialColumnId,
   isOpen,
   isSubmitting,
+  mode,
+  task,
   onClose,
+  onDelete,
   onSubmit,
-}: CreateTaskModalProps) {
+}: TaskFormModalProps) {
   const selectedInitialColumnId = useMemo(
-    () => getInitialColumnId(columns, initialColumnId),
-    [columns, initialColumnId],
+    () => getInitialColumnId(columns, initialColumnId, task),
+    [columns, initialColumnId, task],
   );
   const [title, setTitle] = useState("");
   const [columnId, setColumnId] = useState(selectedInitialColumnId);
@@ -58,18 +87,21 @@ export function CreateTaskModal({
       return;
     }
 
-    setTitle("");
+    setTitle(task?.title ?? "");
     setColumnId(selectedInitialColumnId);
-    setPriority("MEDIUM");
-    setDescription("");
-    setDueDate("");
-    setStoryPoints("");
+    setPriority(task?.priority ?? "MEDIUM");
+    setDescription(task?.description ?? "");
+    setDueDate(formatDateInputValue(task?.dueDate));
+    setStoryPoints(task?.storyPoints?.toString() ?? "");
     setValidationMessage(null);
-  }, [isOpen, selectedInitialColumnId]);
+  }, [isOpen, selectedInitialColumnId, task]);
 
   if (!isOpen) {
     return null;
   }
+
+  const isEditMode = mode === "edit";
+  const visibleErrorMessage = validationMessage ?? errorMessage;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -114,7 +146,17 @@ export function CreateTaskModal({
     }
   }
 
-  const visibleErrorMessage = validationMessage ?? errorMessage;
+  async function handleDelete() {
+    if (!onDelete || !window.confirm("Delete this task?")) {
+      return;
+    }
+
+    try {
+      await onDelete();
+    } catch {
+      // The task action hook owns the visible API error message.
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/65 px-4 backdrop-blur-sm">
@@ -123,9 +165,11 @@ export function CreateTaskModal({
         onSubmit={handleSubmit}
       >
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-xl font-bold text-text-primary">Create task</h2>
+          <h2 className="text-xl font-bold text-text-primary">
+            {isEditMode ? "Edit task" : "Create task"}
+          </h2>
           <button
-            aria-label="Close create task modal"
+            aria-label={`Close ${isEditMode ? "edit" : "create"} task modal`}
             className="rounded-lg p-1.5 text-text-secondary transition-colors hover:bg-white/[0.08] hover:text-text-primary"
             onClick={onClose}
             type="button"
@@ -154,7 +198,11 @@ export function CreateTaskModal({
                 Column <span className="text-error">*</span>
               </span>
               <select
-                className="mt-2 h-10 w-full rounded-xl border border-glass-border bg-background/40 px-3 text-sm text-text-primary outline-none focus:border-accent/50"
+                className={cn(
+                  "mt-2 h-10 w-full rounded-xl border border-glass-border bg-background/40 px-3 text-sm text-text-primary outline-none focus:border-accent/50",
+                  isEditMode && "cursor-not-allowed text-text-secondary",
+                )}
+                disabled={isEditMode}
                 onChange={(event) => setColumnId(event.target.value)}
                 required
                 value={columnId}
@@ -249,23 +297,44 @@ export function CreateTaskModal({
           )}
         </div>
 
-        <div className="mt-5 flex justify-end gap-2">
-          <Button
-            className="min-w-20"
-            disabled={isSubmitting}
-            onClick={onClose}
-            variant="secondary"
-          >
-            Cancel
-          </Button>
-          <Button
-            className={cn("min-w-28", isSubmitting && "opacity-70")}
-            disabled={isSubmitting}
-            type="submit"
-            variant="primary"
-          >
-            {isSubmitting ? "Creating..." : "Create task"}
-          </Button>
+        <div className="mt-5 flex items-center justify-between gap-2">
+          {isEditMode ? (
+            <Button
+              className="text-error hover:bg-error/[0.08]"
+              disabled={isSubmitting}
+              onClick={handleDelete}
+              variant="ghost"
+            >
+              Delete task
+            </Button>
+          ) : (
+            <span />
+          )}
+
+          <div className="flex justify-end gap-2">
+            <Button
+              className="min-w-20"
+              disabled={isSubmitting}
+              onClick={onClose}
+              variant="secondary"
+            >
+              Cancel
+            </Button>
+            <Button
+              className={cn("min-w-28", isSubmitting && "opacity-70")}
+              disabled={isSubmitting}
+              type="submit"
+              variant="primary"
+            >
+              {isSubmitting
+                ? isEditMode
+                  ? "Saving..."
+                  : "Creating..."
+                : isEditMode
+                  ? "Save changes"
+                  : "Create task"}
+            </Button>
+          </div>
         </div>
       </form>
     </div>

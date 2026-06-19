@@ -1,8 +1,11 @@
 import {
   DndContext,
   DragOverlay,
+  PointerSensor,
   type DragEndEvent,
   type DragStartEvent,
+  useSensor,
+  useSensors,
 } from "@dnd-kit/core";
 import { useState } from "react";
 import { BoardColumn } from "./BoardColumn";
@@ -13,6 +16,7 @@ type BoardContainerProps = {
   columns: BoardColumnViewModel[];
   isMovingTask?: boolean;
   onCreateTask: (columnId: string) => void;
+  onEditTask: (taskId: string) => void;
   onTaskMove: (
     taskId: string,
     columnId: string,
@@ -24,9 +28,17 @@ export function BoardContainer({
   columns,
   isMovingTask = false,
   onCreateTask,
+  onEditTask,
   onTaskMove,
 }: BoardContainerProps) {
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 6,
+      },
+    }),
+  );
   const activeTask =
     columns.flatMap((column) => column.tasks).find((task) => task.id === activeTaskId) ??
     null;
@@ -68,6 +80,7 @@ export function BoardContainer({
       onDragCancel={() => setActiveTaskId(null)}
       onDragEnd={handleDragEnd}
       onDragStart={handleDragStart}
+      sensors={sensors}
     >
       <div className="min-h-[560px]">
         <div className="flex gap-4">
@@ -78,6 +91,7 @@ export function BoardContainer({
               isMovingTask={isMovingTask}
               key={column.id}
               onCreateTask={onCreateTask}
+              onEditTask={onEditTask}
             />
           ))}
         </div>

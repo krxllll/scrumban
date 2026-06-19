@@ -6,8 +6,12 @@ import { mapBoardData } from "../../features/board/model/mapBoardData";
 import { useBoardData } from "../../features/board/model/useBoardData";
 import { useAuth } from "../../features/auth/model/useAuth";
 import { useTaskActions } from "../../features/tasks/model/useTaskActions";
-import type { CreateTaskRequest } from "../../features/tasks/model/types";
-import { CreateTaskModal } from "../../features/tasks/ui/CreateTaskModal";
+import type { CreateTaskRequest, Task, UpdateTaskRequest } from "../../features/tasks/model/types";
+import {
+  TaskFormModal,
+  type TaskFormModalMode,
+  type TaskFormValues,
+} from "../../features/tasks/ui/TaskFormModal";
 import { AppShell } from "../../shared/components/layout/AppShell";
 import { Button } from "../../shared/components/ui/Button";
 import { Tabs } from "../../shared/components/ui/Tabs";
@@ -18,9 +22,11 @@ const boardTabs = [
   { label: "Sprints", icon: CalendarDays },
 ];
 
-type CreateTaskModalState = {
+type TaskFormModalState = {
   isOpen: boolean;
+  mode: TaskFormModalMode;
   initialColumnId: string | null;
+  taskId: string | null;
 };
 
 export function BoardPage() {
@@ -38,49 +44,119 @@ export function BoardPage() {
   const {
     clearError: clearTaskActionError,
     createTaskAction,
+    deleteTaskAction,
     errorMessage: taskActionErrorMessage,
-    isCreatingTask,
+    isSubmittingTask,
+    updateTaskAction,
   } = useTaskActions(token);
-  const [createTaskModal, setCreateTaskModal] = useState<CreateTaskModalState>({
+  const [taskFormModal, setTaskFormModal] = useState<TaskFormModalState>({
     isOpen: false,
+    mode: "create",
     initialColumnId: null,
+    taskId: null,
   });
   const boardColumns = useMemo(
     () => mapBoardData(columns, tasks),
     [columns, tasks],
   );
+  const selectedTask = useMemo(
+    () => tasks.find((task) => task.id === taskFormModal.taskId) ?? null,
+    [taskFormModal.taskId, tasks],
+  );
 
   function openCreateTaskModal(initialColumnId: string | null): void {
     clearTaskActionError();
-    setCreateTaskModal({
+    setTaskFormModal({
       isOpen: true,
+      mode: "create",
       initialColumnId,
+      taskId: null,
     });
   }
 
-  function closeCreateTaskModal(): void {
+  function openEditTaskModal(taskId: string): void {
     clearTaskActionError();
-    setCreateTaskModal({
-      isOpen: false,
+    setTaskFormModal({
+      isOpen: true,
+      mode: "edit",
       initialColumnId: null,
+      taskId,
     });
   }
 
-  async function handleCreateTask(payload: CreateTaskRequest): Promise<void> {
+  function closeTaskFormModal(): void {
+    clearTaskActionError();
+    setTaskFormModal({
+      isOpen: false,
+      mode: "create",
+      initialColumnId: null,
+      taskId: null,
+    });
+  }
+
+  async function handleCreateTask(values: TaskFormValues): Promise<void> {
     if (!project) {
       return;
     }
 
     const selectedColumn = boardColumns.find(
-      (column) => column.id === payload.columnId,
+      (column) => column.id === values.columnId,
     );
     const position = selectedColumn?.tasks.length ?? 0;
-
-    await createTaskAction(project.id, {
-      ...payload,
+    const payload: CreateTaskRequest = {
+      columnId: values.columnId,
+      title: values.title,
+      priority: values.priority,
+      description: values.description,
+      dueDate: values.dueDate,
+      storyPoints: values.storyPoints,
+      assigneeId: values.assigneeId,
       position,
-    });
-    closeCreateTaskModal();
+    };
+
+    await createTaskAction(project.id, payload);
+    closeTaskFormModal();
+    await refetch();
+  }
+
+  async function handleUpdateTask(values: TaskFormValues): Promise<void> {
+    if (!project || !selectedTask) {
+      return;
+    }
+
+    const payload: UpdateTaskRequest = {
+      epicId: selectedTask.epicId,
+      parentTaskId: selectedTask.parentTaskId,
+      title: values.title,
+      description: values.description,
+      priority: values.priority,
+      dueDate: values.dueDate,
+      storyPoints: values.storyPoints,
+      assigneeId: values.assigneeId,
+      position: selectedTask.position,
+    };
+
+    await updateTaskAction(project.id, selectedTask.id, payload);
+    closeTaskFormModal();
+    await refetch();
+  }
+
+  async function handleTaskFormSubmit(values: TaskFormValues): Promise<void> {
+    if (taskFormModal.mode === "edit") {
+      await handleUpdateTask(values);
+      return;
+    }
+
+    await handleCreateTask(values);
+  }
+
+  async function handleDeleteTask(): Promise<void> {
+    if (!project || !selectedTask) {
+      return;
+    }
+
+    await deleteTaskAction(project.id, selectedTask.id);
+    closeTaskFormModal();
     await refetch();
   }
 
@@ -136,19 +212,23 @@ export function BoardPage() {
               columns={boardColumns}
               isMovingTask={isMovingTask}
               onCreateTask={(columnId) => openCreateTaskModal(columnId)}
+              onEditTask={openEditTaskModal}
               onTaskMove={moveTaskOnBoard}
             />
           </>
         )}
       </div>
-      <CreateTaskModal
+      <TaskFormModal
         columns={boardColumns}
         errorMessage={taskActionErrorMessage}
-        initialColumnId={createTaskModal.initialColumnId}
-        isOpen={createTaskModal.isOpen}
-        isSubmitting={isCreatingTask}
-        onClose={closeCreateTaskModal}
-        onSubmit={handleCreateTask}
+        initialColumnId={taskFormModal.initialColumnId}
+        isOpen={taskFormModal.isOpen}
+        isSubmitting={isSubmittingTask}
+        mode={taskFormModal.mode}
+        onClose={closeTaskFormModal}
+        onDelete={taskFormModal.mode === "edit" ? handleDeleteTask : undefined}
+        onSubmit={handleTaskFormSubmit}
+        task={selectedTask}
       />
     </AppShell>
   );
