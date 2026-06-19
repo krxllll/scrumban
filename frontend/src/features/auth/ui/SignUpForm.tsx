@@ -29,7 +29,7 @@ export function SignUpForm() {
 
     try {
       await register(name, email, password);
-      navigate("/projects/demo/board", { replace: true });
+      navigate("/projects/board", { replace: true });
     } catch (error) {
       setErrorMessage(getRegistrationErrorMessage(error));
     } finally {

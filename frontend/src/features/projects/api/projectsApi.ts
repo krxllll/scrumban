@@ -1,5 +1,9 @@
 import { api } from "../../../shared/lib/apiClient";
-import type { CreateProjectRequest, Project } from "../model/types";
+import type {
+  CreateProjectRequest,
+  Project,
+  UpdateProjectRequest,
+} from "../model/types";
 
 export function getProjects(token: string): Promise<Project[]> {
   return api.get<Project[]>("/api/projects", { token });
@@ -19,8 +23,17 @@ export function getProject(
   return api.get<Project>(`/api/projects/${projectId}`, { token });
 }
 
+export function updateProject(
+  token: string,
+  projectId: string,
+  payload: UpdateProjectRequest,
+): Promise<Project> {
+  return api.put<Project>(`/api/projects/${projectId}`, payload, { token });
+}
+
 export const projectsApi = {
   getProjects,
   createProject,
   getProject,
+  updateProject,
 };

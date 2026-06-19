@@ -20,7 +20,7 @@ export function RedirectIfAuthenticated({
   }
 
   if (isAuthenticated) {
-    return <Navigate replace to="/projects/demo/board" />;
+    return <Navigate replace to="/projects/board" />;
   }
 
   return children;

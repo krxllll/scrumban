@@ -15,7 +15,7 @@ export function HomeRedirect() {
   return (
     <Navigate
       replace
-      to={isAuthenticated ? "/projects/demo/board" : "/login"}
+      to={isAuthenticated ? "/projects/board" : "/login"}
     />
   );
 }

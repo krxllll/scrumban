@@ -1,15 +1,41 @@
 import { BarChart3, Plus, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../features/auth/model/useAuth";
+import type { AuthUser } from "../../../features/auth/model/types";
+import type { Project } from "../../../features/projects/model/types";
 import { Avatar } from "../ui/Avatar";
 import { ProjectSwitcher } from "../navigation/ProjectSwitcher";
 import { Button } from "../ui/Button";
 
-const projects = ["Mobile App Redesign", "Website Update", "Research Tracker"];
+type SidebarProps = {
+  projects: Project[];
+  activeProjectId: string | null;
+  currentUser: AuthUser | null;
+  isLoadingProjects: boolean;
+  onCreateProject?: () => void;
+  onSelectProject?: (projectId: string) => void;
+};
 
-export function Sidebar() {
+function getUserDisplayName(user: AuthUser | null): string {
+  return user?.name?.trim() || user?.email?.trim() || "Signed in user";
+}
+
+function getUserSubtitle(user: AuthUser | null): string {
+  return user?.email?.trim() || "Authenticated";
+}
+
+export function Sidebar({
+  projects,
+  activeProjectId,
+  currentUser,
+  isLoadingProjects,
+  onCreateProject,
+  onSelectProject,
+}: SidebarProps) {
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const userDisplayName = getUserDisplayName(currentUser);
+  const userSubtitle = getUserSubtitle(currentUser);
 
   function handleLogout(): void {
     logout();
@@ -30,20 +56,36 @@ export function Sidebar() {
 
       <section className="mt-7">
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-muted">Projects</p>
-          <button className="text-text-secondary transition-colors hover:text-text-primary" type="button" aria-label="Add project">
+          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-muted">
+            Projects
+          </p>
+          <button
+            aria-label="Add project"
+            className="text-text-secondary transition-colors hover:text-text-primary"
+            onClick={onCreateProject}
+            type="button"
+          >
             <Plus size={14} />
           </button>
         </div>
-        <ProjectSwitcher projects={projects} activeProject="Mobile App Redesign" />
+        <ProjectSwitcher
+          activeProjectId={activeProjectId}
+          isLoading={isLoadingProjects}
+          onSelectProject={onSelectProject}
+          projects={projects}
+        />
       </section>
 
-      <div className="mt-auto flex items-center justify-between p-2 pt-4 border-t border-glass-border">
+      <div className="mt-auto flex items-center justify-between border-t border-glass-border p-2 pt-4">
         <div className="flex items-center gap-3">
-          <Avatar className="h-8 w-8" name="Roman Kroliak" />
+          <Avatar className="h-8 w-8" name={userDisplayName} />
           <div className="min-w-0">
-            <p className="truncate text-xs font-semibold text-text-primary">Roman Kroliak</p>
-            <p className="truncate text-xs text-text-secondary">Project owner</p>
+            <p className="truncate text-xs font-semibold text-text-primary">
+              {userDisplayName}
+            </p>
+            <p className="truncate text-xs text-text-secondary">
+              {userSubtitle}
+            </p>
           </div>
         </div>
         <Button

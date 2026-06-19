@@ -3,9 +3,10 @@ import { App } from "./App";
 import { HomeRedirect } from "../features/auth/model/HomeRedirect";
 import { RedirectIfAuthenticated } from "../features/auth/model/RedirectIfAuthenticated";
 import { RequireAuth } from "../features/auth/model/RequireAuth";
-import { LogInPage } from "../pages/auth/LogInPage.tsx";
+import { LogInPage } from "../pages/auth/LogInPage";
 import { SignUpPage } from "../pages/auth/SignUpPage";
 import { BoardPage } from "../pages/board/BoardPage";
+import { SettingsPage } from "../pages/settings/SettingsPage";
 
 export const router = createBrowserRouter([
   {
@@ -33,10 +34,34 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: "projects/demo/board",
+        path: "projects/board",
         element: (
           <RequireAuth>
             <BoardPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: "projects/:projectSlug/board",
+        element: (
+          <RequireAuth>
+            <BoardPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: "projects/:projectSlug",
+        element: (
+          <RequireAuth>
+            <BoardPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: "projects/:projectSlug/settings",
+        element: (
+          <RequireAuth>
+            <SettingsPage />
           </RequireAuth>
         ),
       },

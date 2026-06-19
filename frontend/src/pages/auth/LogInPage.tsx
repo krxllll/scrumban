@@ -1,4 +1,4 @@
-import { LogInForm } from "../../features/auth/ui/LogInForm.tsx";
+import { LogInForm } from "../../features/auth/ui/LogInForm";
 
 export function LogInPage() {
   return (

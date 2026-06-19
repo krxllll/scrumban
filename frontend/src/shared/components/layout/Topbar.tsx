@@ -1,18 +1,29 @@
 import { Plus, Search } from "lucide-react";
+import type { AuthUser } from "../../../features/auth/model/types";
 import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { UserMenu } from "../navigation/UserMenu";
 
 type TopbarProps = {
+  projectTitle: string;
+  currentUser: AuthUser | null;
+  isCreateTaskDisabled?: boolean;
   onCreateTask?: () => void;
 };
 
-export function Topbar({ onCreateTask }: TopbarProps) {
+export function Topbar({
+  projectTitle,
+  currentUser,
+  isCreateTaskDisabled = false,
+  onCreateTask,
+}: TopbarProps) {
   return (
     <header className="flex h-12 shrink-0 items-center gap-3">
       <div className="flex min-w-0 flex-1 items-end gap-3">
-        <h1 className="truncate text-3xl font-bold text-text-primary">Mobile App Redesign</h1>
+        <h1 className="truncate text-3xl font-bold text-text-primary">
+          {projectTitle}
+        </h1>
         <Badge className="shrink-0 text-sm" tone="accent">
           Sprint 5 · Active
         </Badge>
@@ -23,11 +34,16 @@ export function Topbar({ onCreateTask }: TopbarProps) {
         <Input className="pl-9 text-sm" placeholder="Search tasks..." />
       </label>
 
-      <Button className="px-3.5 text-sm" onClick={onCreateTask} variant="primary">
+      <Button
+        className="px-3.5 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+        disabled={isCreateTaskDisabled}
+        onClick={onCreateTask}
+        variant="primary"
+      >
         <Plus size={16} />
         Create task
       </Button>
-      <UserMenu />
+      <UserMenu currentUser={currentUser} />
     </header>
   );
 }
