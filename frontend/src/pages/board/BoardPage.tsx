@@ -1,10 +1,15 @@
 import { CalendarDays, Filter, KanbanSquare, ListChecks, ListFilter, Rows3 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { BoardContainer } from "../../features/board/ui/BoardContainer";
 import { SprintSummary } from "../../features/board/ui/SprintSummary";
 import { mapBoardData } from "../../features/board/model/mapBoardData";
 import { useBoardData } from "../../features/board/model/useBoardData";
 import { useAuth } from "../../features/auth/model/useAuth";
+import {
+  createProjectBoardPath,
+  createProjectRouteSlug,
+} from "../../features/projects/model/projectSlug";
 import { useProjectSelection } from "../../features/projects/model/useProjectSelection";
 import { useTaskActions } from "../../features/tasks/model/useTaskActions";
 import type {
@@ -36,6 +41,8 @@ type TaskFormModalState = {
 
 export function BoardPage() {
   const { token, user } = useAuth();
+  const { projectSlug } = useParams<{ projectSlug?: string }>();
+  const navigate = useNavigate();
   const {
     projects,
     selectedProjectId,
@@ -75,6 +82,47 @@ export function BoardPage() {
     () => tasks.find((task) => task.id === taskFormModal.taskId) ?? null,
     [taskFormModal.taskId, tasks],
   );
+
+  useEffect(() => {
+    if (isLoadingProjects || projectErrorMessage || projects.length === 0) {
+      return;
+    }
+
+    const projectFromSlug = projectSlug
+      ? projects.find(
+          (project) => createProjectRouteSlug(project) === projectSlug,
+        )
+      : null;
+    const nextProject = projectFromSlug ?? projects[0];
+
+    if (selectedProjectId !== nextProject.id) {
+      selectProject(nextProject.id);
+    }
+
+    const nextPath = createProjectBoardPath(nextProject);
+
+    if (projectSlug !== createProjectRouteSlug(nextProject)) {
+      navigate(nextPath, { replace: true });
+    }
+  }, [
+    isLoadingProjects,
+    navigate,
+    projectErrorMessage,
+    projects,
+    projectSlug,
+    selectProject,
+    selectedProjectId,
+  ]);
+
+  function handleSelectProject(projectId: string): void {
+    const project = projects.find((item) => item.id === projectId);
+
+    selectProject(projectId);
+
+    if (project) {
+      navigate(createProjectBoardPath(project));
+    }
+  }
 
   function openCreateTaskModal(initialColumnId: string | null): void {
     clearTaskActionError();
@@ -177,7 +225,7 @@ export function BoardPage() {
       activeProjectId={selectedProjectId}
       isLoadingProjects={isLoadingProjects}
       onCreateTask={() => openCreateTaskModal(boardColumns[0]?.id ?? null)}
-      onSelectProject={selectProject}
+      onSelectProject={handleSelectProject}
       projectTitle={
         isLoadingProjects
           ? "Loading project..."

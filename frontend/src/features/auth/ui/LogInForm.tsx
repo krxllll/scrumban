@@ -28,7 +28,7 @@ export function LogInForm() {
 
     try {
       await login(email, password);
-      navigate("/projects/demo/board", { replace: true });
+      navigate("/projects/board", { replace: true });
     } catch (error) {
       setErrorMessage(getLoginErrorMessage(error));
     } finally {
