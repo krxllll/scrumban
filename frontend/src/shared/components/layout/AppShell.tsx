@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { AuthUser } from "../../../features/auth/model/types";
 import type { Project } from "../../../features/projects/model/types";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
@@ -7,6 +8,7 @@ type AppShellProps = {
   children: ReactNode;
   projects?: Project[];
   activeProjectId?: string | null;
+  currentUser?: AuthUser | null;
   isLoadingProjects?: boolean;
   projectTitle?: string;
   isCreateTaskDisabled?: boolean;
@@ -19,6 +21,7 @@ export function AppShell({
   children,
   projects = [],
   activeProjectId = null,
+  currentUser = null,
   isLoadingProjects = false,
   projectTitle = "No project selected",
   isCreateTaskDisabled = false,
@@ -34,6 +37,7 @@ export function AppShell({
         <div className="mx-auto flex gap-5">
           <Sidebar
             activeProjectId={activeProjectId}
+            currentUser={currentUser}
             isLoadingProjects={isLoadingProjects}
             onCreateProject={onCreateProject}
             onSelectProject={onSelectProject}
@@ -41,6 +45,7 @@ export function AppShell({
           />
           <main className="glass-panel flex min-h-[calc(100vh-48px)] min-w-0 flex-1 flex-col rounded-[28px] p-5">
             <Topbar
+              currentUser={currentUser}
               isCreateTaskDisabled={isCreateTaskDisabled}
               onCreateTask={onCreateTask}
               projectTitle={projectTitle}

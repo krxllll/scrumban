@@ -1,4 +1,5 @@
 import { Plus, Search } from "lucide-react";
+import type { AuthUser } from "../../../features/auth/model/types";
 import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
@@ -6,12 +7,14 @@ import { UserMenu } from "../navigation/UserMenu";
 
 type TopbarProps = {
   projectTitle: string;
+  currentUser: AuthUser | null;
   isCreateTaskDisabled?: boolean;
   onCreateTask?: () => void;
 };
 
 export function Topbar({
   projectTitle,
+  currentUser,
   isCreateTaskDisabled = false,
   onCreateTask,
 }: TopbarProps) {
@@ -40,7 +43,7 @@ export function Topbar({
         <Plus size={16} />
         Create task
       </Button>
-      <UserMenu />
+      <UserMenu currentUser={currentUser} />
     </header>
   );
 }

@@ -313,6 +313,7 @@ export function BoardPage() {
   return (
     <AppShell
       activeProjectId={selectedProjectId}
+      currentUser={user}
       isCreateTaskDisabled={boardColumns.length === 0}
       isLoadingProjects={isLoadingProjects}
       onCreateProject={openCreateProjectModal}

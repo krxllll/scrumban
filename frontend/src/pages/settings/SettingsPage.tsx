@@ -188,7 +188,7 @@ function ColumnSettingsRow({
 }
 
 export function SettingsPage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const { projectSlug } = useParams<{ projectSlug?: string }>();
   const navigate = useNavigate();
   const {
@@ -495,6 +495,7 @@ export function SettingsPage() {
   return (
     <AppShell
       activeProjectId={selectedProjectId}
+      currentUser={user}
       isCreateTaskDisabled
       isLoadingProjects={isLoadingProjects}
       onCreateProject={openCreateProjectModal}
