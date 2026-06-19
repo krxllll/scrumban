@@ -13,5 +13,9 @@ export function createProjectRouteSlug(project: Project): string {
 }
 
 export function createProjectBoardPath(project: Project): string {
-  return `/projects/${createProjectRouteSlug(project)}/board`;
+  return `/projects/${createProjectRouteSlug(project)}`;
+}
+
+export function createProjectSettingsPath(project: Project): string {
+  return `/projects/${createProjectRouteSlug(project)}/settings`;
 }

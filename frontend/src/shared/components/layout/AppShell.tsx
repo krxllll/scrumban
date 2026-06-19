@@ -9,6 +9,7 @@ type AppShellProps = {
   activeProjectId?: string | null;
   isLoadingProjects?: boolean;
   projectTitle?: string;
+  isCreateTaskDisabled?: boolean;
   onSelectProject?: (projectId: string) => void;
   onCreateProject?: () => void;
   onCreateTask?: () => void;
@@ -20,6 +21,7 @@ export function AppShell({
   activeProjectId = null,
   isLoadingProjects = false,
   projectTitle = "No project selected",
+  isCreateTaskDisabled = false,
   onSelectProject,
   onCreateProject,
   onCreateTask,
@@ -38,7 +40,11 @@ export function AppShell({
             projects={projects}
           />
           <main className="glass-panel flex min-h-[calc(100vh-48px)] min-w-0 flex-1 flex-col rounded-[28px] p-5">
-            <Topbar onCreateTask={onCreateTask} projectTitle={projectTitle} />
+            <Topbar
+              isCreateTaskDisabled={isCreateTaskDisabled}
+              onCreateTask={onCreateTask}
+              projectTitle={projectTitle}
+            />
             {children}
           </main>
         </div>

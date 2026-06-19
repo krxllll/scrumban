@@ -6,6 +6,7 @@ import { RequireAuth } from "../features/auth/model/RequireAuth";
 import { LogInPage } from "../pages/auth/LogInPage";
 import { SignUpPage } from "../pages/auth/SignUpPage";
 import { BoardPage } from "../pages/board/BoardPage";
+import { SettingsPage } from "../pages/settings/SettingsPage";
 
 export const router = createBrowserRouter([
   {
@@ -45,6 +46,22 @@ export const router = createBrowserRouter([
         element: (
           <RequireAuth>
             <BoardPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: "projects/:projectSlug",
+        element: (
+          <RequireAuth>
+            <BoardPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: "projects/:projectSlug/settings",
+        element: (
+          <RequireAuth>
+            <SettingsPage />
           </RequireAuth>
         ),
       },

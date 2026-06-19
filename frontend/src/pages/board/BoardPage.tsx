@@ -1,6 +1,14 @@
-import { CalendarDays, Filter, KanbanSquare, ListChecks, ListFilter, Rows3 } from "lucide-react";
+import {
+  CalendarDays,
+  Filter,
+  KanbanSquare,
+  ListChecks,
+  ListFilter,
+  Rows3,
+  Settings,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { BoardContainer } from "../../features/board/ui/BoardContainer";
 import { SprintSummary } from "../../features/board/ui/SprintSummary";
 import { mapBoardData } from "../../features/board/model/mapBoardData";
@@ -10,6 +18,7 @@ import { createProject } from "../../features/projects/api/projectsApi";
 import {
   createProjectBoardPath,
   createProjectRouteSlug,
+  createProjectSettingsPath,
 } from "../../features/projects/model/projectSlug";
 import { useProjectSelection } from "../../features/projects/model/useProjectSelection";
 import {
@@ -32,12 +41,6 @@ import { Button } from "../../shared/components/ui/Button";
 import { Tabs } from "../../shared/components/ui/Tabs";
 import { ApiError } from "../../shared/lib/apiClient";
 
-const boardTabs = [
-  { label: "Board", icon: KanbanSquare, active: true },
-  { label: "Backlog", icon: ListChecks },
-  { label: "Sprints", icon: CalendarDays },
-];
-
 type TaskFormModalState = {
   isOpen: boolean;
   mode: TaskFormModalMode;
@@ -49,6 +52,7 @@ export function BoardPage() {
   const { token, user } = useAuth();
   const { projectSlug } = useParams<{ projectSlug?: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     projects,
     selectedProjectId,
@@ -91,6 +95,15 @@ export function BoardPage() {
     () => mapBoardData(columns, tasks),
     [columns, tasks],
   );
+  const boardTabs = useMemo(
+    () => [
+      { label: "Board", icon: KanbanSquare, active: true },
+      { label: "Backlog", icon: ListChecks },
+      { label: "Sprints", icon: CalendarDays },
+      { label: "Settings", icon: Settings },
+    ],
+    [],
+  );
   const selectedTask = useMemo(
     () => tasks.find((task) => task.id === taskFormModal.taskId) ?? null,
     [taskFormModal.taskId, tasks],
@@ -113,12 +126,17 @@ export function BoardPage() {
     }
 
     const nextPath = createProjectBoardPath(nextProject);
+    const shouldNormalizeBoardPath = location.pathname.endsWith("/board");
 
-    if (projectSlug !== createProjectRouteSlug(nextProject)) {
+    if (
+      projectSlug !== createProjectRouteSlug(nextProject) ||
+      shouldNormalizeBoardPath
+    ) {
       navigate(nextPath, { replace: true });
     }
   }, [
     isLoadingProjects,
+    location.pathname,
     navigate,
     projectErrorMessage,
     projects,
@@ -134,6 +152,21 @@ export function BoardPage() {
 
     if (project) {
       navigate(createProjectBoardPath(project));
+    }
+  }
+
+  function handleSelectBoardTab(label: string): void {
+    if (!selectedProject) {
+      return;
+    }
+
+    if (label === "Board") {
+      navigate(createProjectBoardPath(selectedProject));
+      return;
+    }
+
+    if (label === "Settings") {
+      navigate(createProjectSettingsPath(selectedProject));
     }
   }
 
@@ -280,6 +313,7 @@ export function BoardPage() {
   return (
     <AppShell
       activeProjectId={selectedProjectId}
+      isCreateTaskDisabled={boardColumns.length === 0}
       isLoadingProjects={isLoadingProjects}
       onCreateProject={openCreateProjectModal}
       onCreateTask={() => openCreateTaskModal(boardColumns[0]?.id ?? null)}
@@ -293,7 +327,7 @@ export function BoardPage() {
     >
       <div className="mt-4 flex min-h-0 flex-1 flex-col gap-4">
         <div className="flex flex-wrap items-center justify-between gap-2.5">
-          <Tabs items={boardTabs} />
+          <Tabs items={boardTabs} onSelect={handleSelectBoardTab} />
           <div className="flex flex-wrap items-center gap-2.5">
             <Button className="h-9 text-sm" variant="secondary">
               <Filter size={14} />
@@ -343,13 +377,33 @@ export function BoardPage() {
           </div>
         )}
 
-        {!isLoading && selectedProject && (
+        {!isLoading && selectedProject && errorMessage && (
+          <div className="rounded-xl border border-error/30 bg-error/[0.08] px-4 py-3 text-sm font-semibold text-error">
+            {errorMessage}
+          </div>
+        )}
+
+        {!isLoading && selectedProject && !errorMessage && columns.length === 0 && (
+          <div className="glass-panel flex min-h-[560px] flex-col items-center justify-center gap-4 rounded-[20px] px-6 text-center">
+            <div>
+              <p className="text-base font-bold text-text-primary">
+                No columns yet.
+              </p>
+              <p className="mt-2 text-sm font-medium text-text-secondary">
+                Open Settings and add board columns to start using this project.
+              </p>
+            </div>
+            <Button
+              onClick={() => navigate(createProjectSettingsPath(selectedProject))}
+              variant="primary"
+            >
+              Open Settings
+            </Button>
+          </div>
+        )}
+
+        {!isLoading && selectedProject && !errorMessage && columns.length > 0 && (
           <>
-            {errorMessage && (
-              <div className="rounded-xl border border-error/30 bg-error/[0.08] px-4 py-3 text-sm font-semibold text-error">
-                {errorMessage}
-              </div>
-            )}
             <BoardContainer
               columns={boardColumns}
               isMovingTask={isMovingTask}

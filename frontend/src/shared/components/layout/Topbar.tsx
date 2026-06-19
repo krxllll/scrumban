@@ -6,10 +6,15 @@ import { UserMenu } from "../navigation/UserMenu";
 
 type TopbarProps = {
   projectTitle: string;
+  isCreateTaskDisabled?: boolean;
   onCreateTask?: () => void;
 };
 
-export function Topbar({ projectTitle, onCreateTask }: TopbarProps) {
+export function Topbar({
+  projectTitle,
+  isCreateTaskDisabled = false,
+  onCreateTask,
+}: TopbarProps) {
   return (
     <header className="flex h-12 shrink-0 items-center gap-3">
       <div className="flex min-w-0 flex-1 items-end gap-3">
@@ -27,7 +32,8 @@ export function Topbar({ projectTitle, onCreateTask }: TopbarProps) {
       </label>
 
       <Button
-        className="px-3.5 text-sm"
+        className="px-3.5 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+        disabled={isCreateTaskDisabled}
         onClick={onCreateTask}
         variant="primary"
       >
